@@ -1,8 +1,8 @@
 ####
 
 flags :=
-#flags += -O3
-flags += -O0 -g
+flags += -O3
+#flags += -O0 -g
 flags += -DMAX_BATCH_SIZE=64
 #flags += -DMAX_BATCH_SIZE=1
 #flags += -DGENERIC_GRAD_CHECK=1
@@ -25,17 +25,17 @@ apps :=
 apps += mnist
 
 real_types := 
-#real_types += float
-real_types += double
+real_types += float
+#real_types += double
 
 cxxs :=
 #cxxs += g++
-#cxxs += clang++
-cxxs += nvcc
+cxxs += clang++
+#cxxs += nvcc
 
 checks :=
-#checks += 0
-checks += 1
+checks += 0
+#checks += 1
 
 ####
 

@@ -396,6 +396,8 @@ struct tensor {
     (void)dev;
 #endif
   }
+
+#if 1
   /**
      @brief allocate and set the device shadow of this array if
      requested by the parameter
@@ -445,6 +447,8 @@ struct tensor {
     }
 #endif
   }
+
+#endif
 };
 
 /**

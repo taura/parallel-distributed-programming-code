@@ -6,13 +6,16 @@
 #include "include/mnist_data.h"
 #include "include/mnist.h"
 
+
+
 /**
    @brief grab a mini batch (B training samples), forward, backward and update.
    @return the average loss of the mini batch.
  */
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t nC>
 static void train(MNIST<maxB,C,H,W,nC> * mnist,
-                  mnist_dataset<maxB,C,H,W>& data, idx_t B, long epoch, long log_interval) {
+                  mnist_dataset<maxB,C,H,W>& data, idx_t B,
+                  logger& lgr, long epoch, long log_interval) {
   data.rewind();
   long n_samples = 0;
   for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B); batch_idx++) {
@@ -21,9 +24,9 @@ static void train(MNIST<maxB,C,H,W,nC> * mnist,
     mnist->predict(mnist->pred);
     mnist->log_prediction(n_samples, mnist->pred, mnist->t);
     if (batch_idx % log_interval == 0) {
-      printf("Train Epoch: %ld [%ld/%ld (%.0f%%)]\tLoss: %.6f\n",
-             epoch, n_samples, data.n_data,
-             100. * n_samples / data.n_data, L);
+      lgr.log(1, "Train Epoch: %ld [%ld/%ld (%.0f%%)]\tLoss: %.6f",
+              epoch, n_samples, data.n_data,
+              100. * n_samples / data.n_data, L);
     }
     n_samples += mnist->idxs.n0;
   }
@@ -36,13 +39,14 @@ static void train(MNIST<maxB,C,H,W,nC> * mnist,
  */
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t nC>
 static void test(MNIST<maxB,C,H,W,nC> * mnist,
-                 mnist_dataset<maxB,C,H,W>& data, idx_t B) {
+                 mnist_dataset<maxB,C,H,W>& data, idx_t B,
+                 logger& lgr) {
   real Lsum = 0.0;
   long n_samples = 0;
   long n_correct = 0;
   data.rewind();
   for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B); batch_idx++) {
-    tensor<real,maxB>& y = mnist->forward(mnist->x, mnist->t);
+    tensor<real,maxB>& y = mnist->forward(mnist->x, mnist->t, 0);
     y.to_host();
     mnist->predict(mnist->pred);
     Lsum += y.sum();
@@ -50,8 +54,8 @@ static void test(MNIST<maxB,C,H,W,nC> * mnist,
     n_correct += mnist->log_prediction(n_samples, mnist->pred, mnist->t);
   }
   assert(n_samples == data.n_data);
-  printf("Test set: Average loss: %.4f, Accuracy: %ld/%ld (%.0f%%)\n",
-         Lsum / n_samples, n_correct, n_samples, (100. * n_correct) / n_samples);
+  lgr.log(1, "Test set: Average loss: %.4f, Accuracy: %ld/%ld (%.0f%%)",
+          Lsum / n_samples, n_correct, n_samples, (100. * n_correct) / n_samples);
 }
 
 /**
@@ -83,19 +87,20 @@ int main(int argc, char ** argv) {
   rg.seed(opt.weight_seed);
   /* build model and initialize weights */
   lgr.log(1, "model building starts");
-  long dropout_seed = opt.dropout_seed;
+  long seed1 = opt.dropout_seed_1;
+  long seed2 = opt.dropout_seed_2;
   MNISTCfg cfg = {
     .conv1 = {},
     .relu1 = {},
     .conv2 = {},
     .relu2 = {},
     .max_pooling_2d = {},
-    .dropout1 = { .ratio = 0.25f * (dropout_seed != 0), .seed = (dropout_seed += 100) },
+    .dropout1 = { .ratio = 0.25f * (seed1 != 0), .seed = seed1 },
     .fc1 = {},
     .relu3 = {},
-    .dropout2 = { .ratio =  0.5f * (dropout_seed != 0), .seed = (dropout_seed += 100) },
-      .fc2 = {},
-      .nll_log_softmax = {}
+    .dropout2 = { .ratio =  0.5f * (seed2 != 0), .seed = seed2 },
+    .fc2 = {},
+    .nll_log_softmax = {}
   };
   MNIST<maxB,C,H,W,nC> * mnist = new MNIST<maxB,C,H,W,nC>();
   mnist->init(opt, &lgr, rg, cfg);
@@ -112,9 +117,8 @@ int main(int argc, char ** argv) {
   /* training loop */
   lgr.log(1, "training starts");
   for (long i = 0; i < opt.epochs; i++) {
-    train(mnist, train_data, B, i + 1, opt.log_interval);
-    test(mnist, test_data, B);
-    //scheduler.step();
+    train(mnist, train_data, B, lgr, i + 1, opt.log_interval);
+    test(mnist, test_data, B, lgr);
   }
   lgr.log(1, "training ends");
   lgr.end_log();

@@ -176,7 +176,8 @@ struct Linear {
      @sa forward_dev
   */
   __device__ __host__
-  void forward_base(tensor<real,M,K0,K1,K2>& x) {
+  void forward_base(tensor<real,M,K0,K1,K2>& x, int training) {
+    (void)training;
     const idx_t m = x.n0;
     y.set_n0(m);
     x_ptr = &x;
@@ -205,8 +206,8 @@ struct Linear {
      @sa forward_base
   */
   __device__
-  void forward_dev(tensor<real,M,K0,K1,K2>& x) {
-    forward_base(x);
+  void forward_dev(tensor<real,M,K0,K1,K2>& x, int training) {
+    forward_base(x, training);
   }
   /**
      @brief a gpu version of baseline code called from the 
@@ -217,8 +218,8 @@ struct Linear {
      @sa forward_dev
      @sa forward_base
   */
-  void forward_gpu(tensor<real,M,K0,K1,K2>& x) {
-    launch_and_sync((forward_global<<<1,1>>>(dev, x.dev)));
+  void forward_gpu(tensor<real,M,K0,K1,K2>& x, int training) {
+    launch_and_sync((forward_global<<<1,1>>>(dev, x.dev, training)));
   }
 #endif
   /**
@@ -228,8 +229,8 @@ struct Linear {
      @sa forward
      @sa forward_base
   */
-  void forward_cpu(tensor<real,M,K0,K1,K2>& x) {
-    forward_base(x);
+  void forward_cpu(tensor<real,M,K0,K1,K2>& x, int training) {
+    forward_base(x, training);
   }
   /**
      @brief calc the loss function of a mini-batch (x)
@@ -237,26 +238,26 @@ struct Linear {
      @sa backward
      @sa update
   */
-  tensor<real,M,N>& forward(tensor<real,M,K0,K1,K2>& x) {
+  tensor<real,M,N>& forward(tensor<real,M,K0,K1,K2>& x, int training) {
     log_start_fun(lgr);
     tsc_t t0 = get_tsc();
     switch (opt.algo) {
       /* add case for your implementations here */
     case algo_cpu_base:
-      forward_cpu(x); break;
+      forward_cpu(x, training); break;
 #if __NVCC__
     case algo_gpu_base:
-      forward_gpu(x); break;
+      forward_gpu(x, training); break;
 #endif
     default:
       if (opt.gpu_algo) {
 #if __NVCC__
-        forward_gpu(x);
+        forward_gpu(x, training);
 #else
         err_gpu_algo_no_gpu(opt.algo_s);
 #endif
       } else {
-        forward_cpu(x);
+        forward_cpu(x, training);
       }        
     }
     tsc_t t1 = get_tsc();
@@ -459,7 +460,6 @@ int linear_main(int argc, char ** argv) {
   double sum_e = 0.0;
   for (int iter = 0; iter < n_checks; iter++) {
     printf("==== %d ====\n", iter);
-    //real e = linear_grad_check_rand<maxB,IC,H,W,nC>(opt, &lgr, rg, B);
     LinearCfg cfg;
     real e = grad_check<Linear<maxB,nC,IC,H,W>,
                         tensor<real,maxB,IC,H,W>,

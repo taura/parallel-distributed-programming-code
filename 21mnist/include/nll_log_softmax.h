@@ -120,7 +120,8 @@ struct NLLLogSoftmax {
      @sa forward_dev
   */
   __device__ __host__
-  void forward_base(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t) {
+  void forward_base(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t, int training) {
+    (void)training;
     const idx_t B = x.n0;
     l.set_n0(B);
     log_softmax(x, y);
@@ -140,8 +141,8 @@ struct NLLLogSoftmax {
      @sa forward_base
   */
   __device__
-  void forward_dev(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t) {
-    forward_base(x, t);
+  void forward_dev(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t, int training) {
+    forward_base(x, t, training);
   }
   /**
      @brief a gpu version of baseline code called from the 
@@ -153,8 +154,8 @@ struct NLLLogSoftmax {
      @sa forward_dev
      @sa forward_base
   */
-  void forward_gpu(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t) {
-    launch_and_sync((forward_global<<<1,1>>>(dev, x.dev, t.dev)));
+  void forward_gpu(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t, int training) {
+    launch_and_sync((forward_global<<<1,1>>>(dev, x.dev, t.dev, training)));
   }
 #endif
   /**
@@ -165,8 +166,8 @@ struct NLLLogSoftmax {
      @sa forward
      @sa forward_base
   */
-  void forward_cpu(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t) {
-    forward_base(x, t);
+  void forward_cpu(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t, int training) {
+    forward_base(x, t, training);
   }
   /**
      @brief calc the loss function of a mini-batch (x,t)
@@ -175,26 +176,26 @@ struct NLLLogSoftmax {
      @sa backward
      @sa update
   */
-  tensor<real,maxB>& forward(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t) {
+  tensor<real,maxB>& forward(tensor<real,maxB,nC>& x, tensor<idx_t,maxB>& t, int training) {
     log_start_fun(lgr);
     tsc_t t0 = get_tsc();
     switch (opt.algo) {
       /* add case for your implementations here */
     case algo_cpu_base:
-      forward_cpu(x, t); break;
+      forward_cpu(x, t, training); break;
 #if __NVCC__
     case algo_gpu_base:
-      forward_gpu(x, t); break;
+      forward_gpu(x, t, training); break;
 #endif
     default:
       if (opt.gpu_algo) {
 #if __NVCC__
-        forward_gpu(x, t);
+        forward_gpu(x, t, training);
 #else
         err_gpu_algo_no_gpu(opt.algo_s);
 #endif
       } else {
-        forward_cpu(x, t);
+        forward_cpu(x, t, training);
       }        
     }
     tsc_t t1 = get_tsc();
@@ -377,10 +378,9 @@ int nll_log_softmax_main(int argc, char ** argv) {
   /* check errors */
   double max_e = 0.0;
   double sum_e = 0.0;
+  NLLLogSoftmaxCfg cfg;
   for (int iter = 0; iter < n_checks; iter++) {
     printf("==== %d ====\n", iter);
-    //double e = nll_log_softmax_grad_check_rand<maxB,nC>(opt, &lgr, rg, B);
-    NLLLogSoftmaxCfg cfg;
     double e = grad_check_loss<NLLLogSoftmax<maxB,nC>,
                                tensor<real,maxB,nC>,
                                tensor<idx_t,maxB>,

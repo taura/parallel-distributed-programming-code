@@ -215,18 +215,18 @@ struct MNIST {
      @sa backward
      @sa update
   */
-  tensor<real,maxB>& forward(tensor<real,maxB,C,H,W>& x, tensor<idx_t,maxB>& t) {
-    tensor<real,maxB,C1,H1,W1>& x1  = conv1.forward(x);
-    tensor<real,maxB,C1,H1,W1>& x2  = relu1.forward(x1);
-    tensor<real,maxB,C2,H2,W2>& x3  = conv2.forward(x2);
-    tensor<real,maxB,C2,H2,W2>& x4  = relu2.forward(x3);
-    tensor<real,maxB,C2,H3,W3>& x5  = max_pooling_2d.forward(x4);
-    tensor<real,maxB,C2,H3,W3>& x6  = dropout1.forward(x5);
-    tensor<real,maxB,nF,1,1>&   x7  = fc1.forward(x6);
-    tensor<real,maxB,nF,1,1>&   x8  = relu3.forward(x7);
-    tensor<real,maxB,nF,1,1>&   x9  = dropout2.forward(x8);
-    tensor<real,maxB,nC,1,1>&   x10 = fc2.forward(x9);
-    tensor<real,maxB>&          l   = nll_log_softmax.forward(x10, t);
+  tensor<real,maxB>& forward(tensor<real,maxB,C,H,W>& x, tensor<idx_t,maxB>& t, int training) {
+    tensor<real,maxB,C1,H1,W1>& x1  = conv1.forward(x, training);
+    tensor<real,maxB,C1,H1,W1>& x2  = relu1.forward(x1, training);
+    tensor<real,maxB,C2,H2,W2>& x3  = conv2.forward(x2, training);
+    tensor<real,maxB,C2,H2,W2>& x4  = relu2.forward(x3, training);
+    tensor<real,maxB,C2,H3,W3>& x5  = max_pooling_2d.forward(x4, training);
+    tensor<real,maxB,C2,H3,W3>& x6  = dropout1.forward(x5, training);
+    tensor<real,maxB,nF,1,1>&   x7  = fc1.forward(x6, training);
+    tensor<real,maxB,nF,1,1>&   x8  = relu3.forward(x7, training);
+    tensor<real,maxB,nF,1,1>&   x9  = dropout2.forward(x8, training);
+    tensor<real,maxB,nC,1,1>&   x10 = fc2.forward(x9, training);
+    tensor<real,maxB>&          l   = nll_log_softmax.forward(x10, t, training);
     return l;
   }
   /**
@@ -273,15 +273,15 @@ struct MNIST {
       pred(s) = pred_class;
     }
   }
-
   /**
      @brief log the result of prediction
   */
-  idx_t log_prediction(idx_t start_offset, tensor<idx_t,maxB>& pred, tensor<idx_t,maxB>& t) {
+  idx_t log_prediction(idx_t start_offset,
+                       tensor<idx_t,maxB>& pred, tensor<idx_t,maxB>& t) {
     const idx_t B = idxs.n0;
     idx_t correct = 0;
     for (idx_t s = 0; s < B; s++) {
-      lgr->log(3, "sample %d image %d pred %d truth %d",
+      lgr->log(2, "sample %d image %d pred %d truth %d",
                start_offset + s, idxs(s), pred(s), t(s));
       if (pred(s) == t(s)) {
         correct++;
@@ -305,7 +305,7 @@ struct MNIST {
   real forward_backward_update(tensor<real,maxB,C,H,W>& x, tensor<idx_t,maxB>& t) {
     const idx_t B = x.n0;
     /* forward */
-    tensor<real,maxB>& L = forward(x, t);
+    tensor<real,maxB>& L = forward(x, t, 1);
     /* a vector (1,1,1,...) to make the single loss value from loss of each sample */
     gy.init_const(B, 1.0);
     gy.to_dev();
@@ -399,23 +399,23 @@ int mnist_main(int argc, char ** argv) {
   /* check errors */
   double max_e = 0.0;
   double sum_e = 0.0;
+  long seed1 = opt.dropout_seed_1;
+  long seed2 = opt.dropout_seed_2;
+  MNISTCfg cfg = {
+    .conv1 = {},
+    .relu1 = {},
+    .conv2 = {},
+    .relu2 = {},
+    .max_pooling_2d = {},
+    .dropout1 = { .ratio = 0.25f * (seed1 != 0), .seed = seed1 },
+    .fc1 = {},
+    .relu3 = {},
+    .dropout2 = { .ratio =  0.5f * (seed2 != 0), .seed = seed2 },
+    .fc2 = {},
+    .nll_log_softmax = {}
+  };
   for (int iter = 0; iter < n_checks; iter++) {
     printf("==== %d ====\n", iter);
-    //double e = mnist_grad_check_rand<maxB,C,H,W,nC>(opt, &lgr, rg, B);
-    long seed = opt.dropout_seed;
-    MNISTCfg cfg = {
-      .conv1 = {},
-      .relu1 = {},
-      .conv2 = {},
-      .relu2 = {},
-      .max_pooling_2d = {},
-      .dropout1 = { .ratio = 0.25f * (seed != 0), .seed = seed += 100 },
-      .fc1 = {},
-      .relu3 = {},
-      .dropout2 = { .ratio =  0.5f * (seed != 0), .seed = seed += 100 },
-      .fc2 = {},
-      .nll_log_softmax = {}
-    };
     double e = grad_check_loss<MNIST<maxB,C,H,W,nC>,
                                tensor<real,maxB,C,H,W>,
                                tensor<idx_t,maxB>,

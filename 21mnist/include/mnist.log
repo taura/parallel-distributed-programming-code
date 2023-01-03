@@ -1,0 +1,58 @@
+79818: open a log Tue Jan  3 23:02:49 2023
+89621: verbose=1
+90587: data-dir=data
+91109: lr=1.000000
+95832: epochs=14
+96366: batch-size=64
+96865: train-data-size=0
+97337: test-data-size=0
+97894: weight-seed=45678901234523
+98490: dropout-seed-1=56789012345234
+98999: dropout-seed-2=67890123452345
+99393: grad-dbg=0
+99754: algo=0
+100167: log=mnist.log
+103380: host=xps13
+105541: USER=tau
+106406: PWD=/home/tau/public_html/lecture/parallel_distributed/parallel-distributed/21mnist/include
+107240: SLURM_SUBMIT_DIR undefined
+107919: SLURM_SUBMIT_HOST undefined
+108362: SLURM_JOB_NAME undefined
+108964: SLURM_JOB_CPUS_PER_NODE undefined
+109438: SLURM_NTASKS undefined
+110025: SLURM_NPROCS undefined
+110602: SLURM_JOB_ID undefined
+111027: SLURM_JOBID undefined
+111485: SLURM_NNODES undefined
+112034: SLURM_JOB_NUM_NODES undefined
+112517: SLURM_NODELIST undefined
+112972: SLURM_JOB_PARTITION undefined
+113464: SLURM_TASKS_PER_NODE undefined
+113918: SLURM_JOB_NODELIST undefined
+114441: CUDA_VISIBLE_DEVICES undefined
+114991: GPU_DEVICE_ORDINAL undefined
+115449: SLURM_CPUS_ON_NODE undefined
+115912: SLURM_TASK_PID undefined
+116374: SLURM_NODEID undefined
+116871: SLURM_PROCID undefined
+117381: SLURM_LOCALID undefined
+117839: SLURM_JOB_UID undefined
+118273: SLURM_JOB_USER undefined
+118707: SLURM_JOB_GID undefined
+119141: SLURMD_NODENAME undefined
+186390752: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 1, 28, 28, 3, 32>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 1, H = 28, W = 28, K = 3, OC = 32]: starts
+238622476: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 1, 28, 28, 3, 32>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 1, H = 28, W = 28, K = 3, OC = 32]: ends. took 52227956 nsec
+238625943: tensor<real, N0, N1, N2, N3> &Relu<64, 32, 26, 26>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 32, N2 = 26, N3 = 26]: starts
+244722879: tensor<real, N0, N1, N2, N3> &Relu<64, 32, 26, 26>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 32, N2 = 26, N3 = 26]: ends. took 6096149 nsec
+244724779: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 32, 26, 26, 3, 64>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 32, H = 26, W = 26, K = 3, OC = 64]: starts
+3126931374: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 32, 26, 26, 3, 64>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 32, H = 26, W = 26, K = 3, OC = 64]: ends. took 2882205710 nsec
+3126938655: tensor<real, N0, N1, N2, N3> &Relu<64, 64, 24, 24>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 24, N3 = 24]: starts
+3137268840: tensor<real, N0, N1, N2, N3> &Relu<64, 64, 24, 24>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 24, N3 = 24]: ends. took 10329720 nsec
+3137271082: tensor<real, maxB, C, H / S, W / S> &MaxPooling2D<64, 64, 24, 24, 2>::forward(tensor<real, maxB, C, H, W> &, int) [maxB = 64, C = 64, H = 24, W = 24, S = 2]: starts
+3153351522: tensor<real, maxB, C, H / S, W / S> &MaxPooling2D<64, 64, 24, 24, 2>::forward(tensor<real, maxB, C, H, W> &, int) [maxB = 64, C = 64, H = 24, W = 24, S = 2]: ends. took 16079780 nsec
+3153353798: tensor<real, N0, N1, N2, N3> &Dropout<64, 64, 12, 12>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 12, N3 = 12]: starts
+3157589292: tensor<real, N0, N1, N2, N3> &Dropout<64, 64, 12, 12>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 12, N3 = 12]: ends. took 4235087 nsec
+3157591347: tensor<real, M, N> &Linear<64, 128, 64, 12, 12>::forward(tensor<real, M, K0, K1, K2> &, int) [M = 64, N = 128, K0 = 64, K1 = 12, K2 = 12]: starts
+3657775015: tensor<real, M, N> &Linear<64, 128, 64, 12, 12>::forward(tensor<real, M, K0, K1, K2> &, int) [M = 64, N = 128, K0 = 64, K1 = 12, K2 = 12]: ends. took 500183179 nsec
+3657780582: tensor<real, N0, N1, N2, N3> &Relu<64, 128, 1, 1>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 128, N2 = 1, N3 = 1]: starts
+3657812642: tensor<real, N0, N1, N2, N3> &Relu<64, 128, 1, 1>::forward(tensor

@@ -143,7 +143,8 @@ struct cmdline_opt {
   idx_t test_data_size;         /**< test data size */
   long log_interval;            /**< show progress every this batches */
   long weight_seed;             /**< random seed to initialize weights and dropout */
-  long dropout_seed;            /**< random seed to determine dropout */
+  long dropout_seed_1;          /**< random seed to determine which elements to drop dropout layer 1 */
+  long dropout_seed_2;          /**< random seed to determine which elements to drop dropout layer 2 */
   int grad_dbg;                 /**< 1 if we debug gradient */
   const char * algo_s;          /**< string passed to --algo */
   algo_t algo;                  /**< parse_algo(algo_s)  */
@@ -164,7 +165,8 @@ struct cmdline_opt {
     test_data_size = 0;
     log_interval = 10;
     weight_seed  = 45678901234523L;
-    dropout_seed = 56789012345234L;
+    dropout_seed_1 = 56789012345234L;
+    dropout_seed_2 = 67890123452345L;
     grad_dbg = 0;
 #if __NVCC__    
     algo_s = "gpu_base";
@@ -193,7 +195,8 @@ static struct option long_options[] = {
   {"test-data-size",    required_argument, 0,  0  },
   {"log-interval",      required_argument, 0,  0  },
   {"weight-seed",       required_argument, 0,  0  },
-  {"dropout-seed",      required_argument, 0,  0  },
+  {"dropout-seed-1",    required_argument, 0,  0  },
+  {"dropout-seed-2",    required_argument, 0,  0  },
   {"grad-dbg",          required_argument, 0,  0  },
   {"algo",              required_argument, 0, 'a' },
   {"log",               required_argument, 0,  0  },
@@ -220,7 +223,8 @@ static void usage(const char * prog) {
           " --train-data-size N : set training data size to N [%d]\n"
           " --test-data-size N : set test data size to N [%d]\n"
           " --log-interval N : show progress every N batches [%ld]\n"
-          " --dropout-seed S : set seed for dropout to S [%ld]\n"
+          " --dropout-seed-1 S : set seed for dropout layer 1 to S [%ld]\n"
+          " --dropout-seed-2 S : set seed for dropout layer 2 to S [%ld]\n"
           " --weight-seed S : set seed for initial weights to S [%ld]\n"
           " --grad-dbg 0/1 : debug gradient computation [%d]\n"
           " --log FILE : write log to FILE [%s]\n"
@@ -235,7 +239,8 @@ static void usage(const char * prog) {
           o.train_data_size,
           o.test_data_size,
           o.log_interval,
-          o.dropout_seed,
+          o.dropout_seed_1,
+          o.dropout_seed_2,
           o.weight_seed,
           o.grad_dbg,
           o.log
@@ -266,8 +271,10 @@ static cmdline_opt parse_args(int argc, char ** argv) {
           opt.log_interval = atol(optarg);
         } else if (strcmp(o, "weight-seed") == 0) {
           opt.weight_seed = atol(optarg);
-        } else if (strcmp(o, "dropout-seed") == 0) {
-          opt.dropout_seed = atol(optarg);
+        } else if (strcmp(o, "dropout-seed-1") == 0) {
+          opt.dropout_seed_1 = atol(optarg);
+        } else if (strcmp(o, "dropout-seed-2") == 0) {
+          opt.dropout_seed_2 = atol(optarg);
         } else if (strcmp(o, "grad-dbg") == 0) {
           opt.grad_dbg = atoi(optarg);
         } else if (strcmp(o, "log") == 0) {
@@ -471,6 +478,104 @@ struct rnd_gen_t {
 };
 
 /**
+   @brief if the algorithm is a gpu algorithm, allocate a device shadow 
+   of this object and set dev field of this and all subobjects. otherwise
+   it sets all dev fields to null.
+   @sa set_dev
+   @sa del_dev
+*/
+template<typename T>
+T * make_dev(T * layer, int gpu_algo) {
+#if __NVCC__
+  assert(layer->dev == 0);
+  if (gpu_algo) {
+    T * dev_ = (T*)dev_malloc(sizeof(T));
+    layer->set_dev(dev_);
+    return dev_;
+  } else {
+    return 0;
+  }
+#else
+  (void)gpu_algo;
+  (void)layer;
+  return 0;
+#endif
+}
+
+/**
+   @brief make a copy of this 
+   @details if this object has a device pointer, the copy will have
+   a device pointer too, but its contents are NOT copied
+*/
+template<typename T>
+T* make_copy(T * layer, int gpu_algo) {
+  T * c = new T(*layer);
+#if __NVCC__
+  c->dev = 0;
+  make_dev(c, gpu_algo);
+#endif
+  return c;
+}
+/**
+   @brief if the algorithm is a gpu algorithm, dev field must not
+   be null and deallocate it.
+   @sa make_dev
+   @sa set_dev
+*/
+template<typename T>
+void del_dev(T * layer, int gpu_algo) {
+#if __NVCC__
+  if (gpu_algo) {
+    assert(layer->dev);
+    dev_free(layer->dev);
+    layer->dev = 0;
+  }
+#else
+  (void)gpu_algo;
+  (void)layer;
+#endif
+}
+/**
+   @brief if the algorithm is a gpu algorithm, dev field must
+   not be null and send the host data to the device memory
+*/
+template<typename T>
+void to_dev(T * layer, int gpu_algo) {
+#if __NVCC__
+  if (gpu_algo) {
+    T* dev_ = layer->dev;
+    if (!dev_) {
+      dev_ = make_dev(layer, gpu_algo);
+    }
+    ::to_dev(dev_, layer, sizeof(T));
+  }
+#else
+  (void)gpu_algo;
+  (void)layer;
+#endif
+}
+/**
+   @brief if the algorithm is a gpu algorithm, dev field must
+   not be null and send the device data to the host memory
+*/
+template<typename T>
+void to_host(T * layer, int gpu_algo) {
+#if __NVCC__
+  if (gpu_algo) {
+    T * dev_ = layer->dev;
+    assert(dev_);
+    ::to_host(layer, dev_, sizeof(T));
+  }
+#else
+  (void)gpu_algo;
+  (void)layer;
+#endif
+}
+
+
+
+
+/**
    @brief show various errors 
    @param (gx_gx) ∂L/∂x・∂L/∂x
    @param (dx_dx) dx・dx
@@ -483,14 +588,14 @@ struct rnd_gen_t {
    @param (L_plus) L(w+dw,x+dx)
  */
 __attribute__((unused))
-static real show_error(double gx_gx, double dx_dx, double gx_dx,
-                       double gw_gw, double dw_dw, double gw_dw,
+static real show_error(/* double gx_gx, double dx_dx, */ double gx_dx,
+                       /* double gw_gw, double dw_dw, */ double gw_dw,
                        double L_minus, double L, double L_plus) {
-  printf("|∂L/∂x|   = %.9f\n", sqrt(gx_gx));
-  printf("|dx|      = %.9f\n", sqrt(dx_dx));
+  //printf("|∂L/∂x|   = %.9f\n", sqrt(gx_gx));
+  //printf("|dx|      = %.9f\n", sqrt(dx_dx));
   printf("∂L/∂x・dx = %.9f\n", gx_dx);
-  printf("|∂L/∂w|   = %.9f\n", sqrt(gw_gw));
-  printf("|dw|      = %.9f\n", sqrt(dw_dw));
+  //printf("|∂L/∂w|   = %.9f\n", sqrt(gw_gw));
+  //printf("|dw|      = %.9f\n", sqrt(dw_dw));
   printf("∂L/∂w・dw = %.9f\n", gw_dw);
   printf("L- = %.9f\n", L_minus);
   printf("L  = %.9f\n", L);
@@ -592,7 +697,8 @@ struct logger {
     log(3, "train-data-size=%d", opt.train_data_size);
     log(3, "test-data-size=%ld", opt.test_data_size);
     log(3, "weight-seed=%ld", opt.weight_seed);
-    log(3, "dropout-seed=%ld", opt.dropout_seed);
+    log(3, "dropout-seed-1=%ld", opt.dropout_seed_1);
+    log(3, "dropout-seed-2=%ld", opt.dropout_seed_2);
     log(3, "grad-dbg=%d", opt.grad_dbg);
     log(3, "algo=%d", opt.algo);
     log(3, "log=%s", opt.log);

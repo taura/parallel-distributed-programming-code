@@ -1,11 +1,10 @@
 ####
 
 flags :=
-#flags += -O3
-flags += -O0 -g
+flags += -O3
+#flags += -O0 -g
 flags += -DMAX_BATCH_SIZE=64
 #flags += -DMAX_BATCH_SIZE=1
-flags += -DGENERIC_GLOBAL=1
 
 g++flags += -Wall -Wextra
 g++flags += -Wno-strict-overflow
@@ -40,15 +39,15 @@ real_types += double
 
 cxxs :=
 #cxxs += g++
-#cxxs += clang++
-cxxs += nvcc
+cxxs += clang++
+#cxxs += nvcc
 
 checks :=
-#checks += 0
-checks += 1
+checks += 0
+#checks += 1
 
-#g++ := g++
-#clang++ := clang++
+g++ := g++
+clang++ := clang++
 nvcc := nvcc
 
 #
