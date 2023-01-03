@@ -81,6 +81,7 @@ void make_dev(T * layer, int gpu_algo) {
 template<typename T>
 T* make_copy(T * layer, int gpu_algo) {
   T * c = new T(*layer);
+  c->dev = 0;
   make_dev(c, gpu_algo);
   return c;
 }
@@ -192,30 +193,32 @@ static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, id
   dx->init_uniform(B, rg, -e, e);
   /* make x - dx/2 and x + dx/2 */
   I * x_minus = new I(*x);
-  x_minus->make_dev(opt.gpu_algo);
   I * x_plus  = new I(*x);
+  /* make gpu shadow */
+  x_minus->make_dev(opt.gpu_algo);
   x_plus->make_dev(opt.gpu_algo);
   /* update on the host and send the to gpu */
   x_minus->add_(-0.5, *dx);
   x_plus->add_(0.5, *dx);
+  /* send them to gpu */
   x_minus->to_dev();
   x_plus->to_dev();
   
   /* set gw to a random vector */
   w_minus->rand_grad(rg, -e, e);
   w_plus->copy_grad(*w_minus);
-  /* send them to gpu */
-  to_dev(w_minus, opt.gpu_algo);
-  to_dev(w_plus, opt.gpu_algo);
   /* update weights using gw (update runs on gpu) */
   w_minus->add_grad(-0.5);   /* w -= gw/2 */
   w_plus->add_grad(0.5);     /* w += gw/2 */
+  /* send them to gpu */
+  to_dev(w_minus, opt.gpu_algo);
+  to_dev(w_plus, opt.gpu_algo);
   /* make y(w-dw/2,x-dx/2), y(w+dw/2,x+dx/2) */
   O& y_minus = w_minus->forward(*x_minus);
   O& y_plus  = w_plus->forward(*x_plus);
   /* get the result back to host */
-  y_minus.to_host();
-  y_plus.to_host();
+  to_host(w_minus, opt.gpu_algo);
+  to_host(w_plus, opt.gpu_algo);
 
   /* get the single loss values */
   double L_minus = alpha->dot(y_minus);
@@ -312,8 +315,8 @@ static double grad_check_loss(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cf
   O& y_minus = w_minus->forward(*x_minus, *t);
   O& y_plus  = w_plus->forward(*x_plus, *t);
   /* get the result back to host */
-  y_minus.to_host();
-  y_plus.to_host();
+  to_host(w_minus, opt.gpu_algo);
+  to_host(w_plus, opt.gpu_algo);
 
   /* get the single loss values */
   double L_minus = alpha->dot(y_minus);

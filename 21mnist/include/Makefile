@@ -35,7 +35,7 @@ layers += nll_log_softmax
 layers += mnist
 
 real_types := 
-real_types += float
+#real_types += float
 real_types += double
 
 cxxs :=
@@ -44,11 +44,11 @@ cxxs :=
 cxxs += nvcc
 
 checks :=
-checks += 0
+#checks += 0
 checks += 1
 
-g++ := g++
-clang++ := clang++
+#g++ := g++
+#clang++ := clang++
 nvcc := nvcc
 
 #
