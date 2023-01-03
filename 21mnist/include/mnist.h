@@ -118,7 +118,20 @@ struct MNIST {
     this->dev = dev;
     x.set_dev(dev ? &dev->x : 0);
     t.set_dev(dev ? &dev->t : 0);
+    idxs.set_dev(dev ? &dev->idxs : 0);
+    pred.set_dev(dev ? &dev->pred : 0);
     gy.set_dev(dev ? &dev->gy : 0);
+    conv1.set_dev(dev ? &dev->conv1 : 0);
+    relu1.set_dev(dev ? &dev->relu1 : 0);
+    conv2.set_dev(dev ? &dev->conv2 : 0);
+    relu2.set_dev(dev ? &dev->relu2 : 0);
+    max_pooling_2d.set_dev(dev ? &dev->max_pooling_2d : 0);
+    dropout1.set_dev(dev ? &dev->dropout1 : 0);
+    fc1.set_dev(dev ? &dev->fc1 : 0);
+    relu3.set_dev(dev ? &dev->relu3 : 0);
+    dropout2.set_dev(dev ? &dev->dropout2 : 0);
+    fc2.set_dev(dev ? &dev->fc2 : 0);
+    nll_log_softmax.set_dev(dev ? &dev->nll_log_softmax : 0);
 #else
     (void)dev;
 #endif
