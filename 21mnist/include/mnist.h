@@ -82,9 +82,6 @@ struct MNIST {
   void init(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, MNISTCfg cfg) {
     this->opt = opt;
     this->lgr = lgr;
-    //long seed = opt.dropout_seed;
-    //DropoutCfg dropout_cfg1 = { .ratio = 0.25 * (seed != 0), .seed = seed };
-    //DropoutCfg dropout_cfg2 = { .ratio =  0.5 * (seed != 0), .seed = seed + 100 };
     conv1.init(opt, lgr, rg, cfg.conv1);
     relu1.init(opt, lgr, rg, cfg.relu1);
     conv2.init(opt, lgr, rg, cfg.conv2);

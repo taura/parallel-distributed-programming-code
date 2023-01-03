@@ -85,8 +85,17 @@ int main(int argc, char ** argv) {
   lgr.log(1, "model building starts");
   long dropout_seed = opt.dropout_seed;
   MNISTCfg cfg = {
-    .dropout1 = { .ratio = 0.25 * (dropout_seed != 0), .seed = (dropout_seed += 100) },
-    .dropout2 = { .ratio =  0.5 * (dropout_seed != 0), .seed = (dropout_seed += 100) }
+    .conv1 = {},
+    .relu1 = {},
+    .conv2 = {},
+    .relu2 = {},
+    .max_pooling_2d = {},
+    .dropout1 = { .ratio = 0.25f * (dropout_seed != 0), .seed = (dropout_seed += 100) },
+    .fc1 = {},
+    .relu3 = {},
+    .dropout2 = { .ratio =  0.5f * (dropout_seed != 0), .seed = (dropout_seed += 100) },
+      .fc2 = {},
+      .nll_log_softmax = {}
   };
   MNIST<maxB,C,H,W,nC> * mnist = new MNIST<maxB,C,H,W,nC>();
   mnist->init(opt, &lgr, rg, cfg);
