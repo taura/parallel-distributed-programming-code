@@ -1,4 +1,27 @@
-Pascal Vincent format
+## code
+
+```
+make 
+```
+
+## data
+
+```
+git clone git@github.com:pytorch/examples.git
+cd examples/mnist
+python3 mnist.py
+```
+
+will download data into examples/data/MNIST/raw
+
+make a symlink to raw directory as data
+
+```
+cd ../..
+ln -s examples/data/MNIST/raw data
+```
+
+# Pascal Vincent format
 
 data[3] D (dimension)
 data[2] T (element type) {8: torch.uint8, 9: torch.int8, 11: torch.int16, 12: torch.int32, 13: torch.float32, 14: torch.float64}
