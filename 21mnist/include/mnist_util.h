@@ -526,9 +526,10 @@ template<typename T>
 void del_dev(T * layer, int gpu_algo) {
 #if __NVCC__
   if (gpu_algo) {
-    assert(layer->dev);
-    dev_free(layer->dev);
-    layer->dev = 0;
+    if (layer->dev) {
+      dev_free(layer->dev);
+      layer->dev = 0;
+    }
   }
 #else
   (void)gpu_algo;

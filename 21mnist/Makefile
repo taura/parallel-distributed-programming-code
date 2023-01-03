@@ -30,8 +30,8 @@ real_types += float
 
 cxxs :=
 #cxxs += g++
-cxxs += clang++
-#cxxs += nvcc
+#cxxs += clang++
+cxxs += nvcc
 
 checks :=
 checks += 0
