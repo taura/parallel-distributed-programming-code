@@ -173,7 +173,7 @@ struct mnist_dataset {
         }
       }
     }
-    long n_used_data = (max_data ? min_i(n_data, max_data) : n_data);
+    long n_used_data = (max_data < 0 ? n_data : min_i(n_data, max_data));
     lgr.log(1, "use %ld data items out of %ld", n_used_data, n_data);
     n_data = n_used_data;
     cur = 0;
@@ -207,7 +207,8 @@ struct mnist_dataset {
      @param (B) the number of data to get
      @return the actual number of data returned
    */
-  idx_t get_data(tensor<real,maxB,IC,H,W>& x, tensor<idx_t,maxB>& t, tensor<idx_t,maxB>& idxs, idx_t B) {
+  idx_t get_data(tensor<real,maxB,IC,H,W>& x, tensor<idx_t,maxB>& t, tensor<idx_t,maxB>& idxs,
+                 idx_t B, int cuda_algo) {
     assert(B <= maxB);
     idx_t actual_B = (n_data - cur < B ? n_data - cur : B);
     x.set_n0(actual_B);
@@ -227,9 +228,9 @@ struct mnist_dataset {
       }
       cur++;
     }
-    x.to_dev();
-    t.to_dev();
-    idxs.to_dev();
+    to_dev(&x, cuda_algo);
+    to_dev(&t, cuda_algo);
+    to_dev(&idxs, cuda_algo);
     return actual_B;
   }
 };
@@ -258,7 +259,7 @@ int mnist_data_main(int argc, char ** argv) {
   x.init_const(B, 0);
   t.init_const(B, 0);
   idxs.init_const(B, 0);
-  ds.get_data(x, t, idxs, B);
+  ds.get_data(x, t, idxs, B, opt.cuda_algo);
   lgr.end_log();
   delete[] ds.data;
   return 0;

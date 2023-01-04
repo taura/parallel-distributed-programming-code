@@ -29,7 +29,7 @@
 
 template<typename T, typename I, typename O, typename C>
 static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, idx_t B) {
-  /* make weight and transfer to gpu if working on gpu */
+  /* make weight (layer struct or entire mnist) */
   T * w = new T();
   w->init(opt, lgr, rg, cfg);
   /* make input (x) */
@@ -46,14 +46,14 @@ static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, id
   /* dx = random vector */
   I * dx = new I();
   dx->init_uniform(B, rg, -e, e);
-  I * x_minus = make_copy(x, opt.gpu_algo);
-  I * x_plus  = make_copy(x, opt.gpu_algo);
+  I * x_minus = make_copy(x, opt.cuda_algo);
+  I * x_plus  = make_copy(x, opt.cuda_algo);
   x_minus->add_(-0.5, *dx);     /* x+ = x - dx/2 */
   x_plus->add_(0.5, *dx);       /* x- = x + dx/2 */
   
   /* make w - dw/2 and w + dw/2 */
-  T * w_minus = make_copy(w, opt.gpu_algo);
-  T * w_plus = make_copy(w, opt.gpu_algo);
+  T * w_minus = make_copy(w, opt.cuda_algo);
+  T * w_plus = make_copy(w, opt.cuda_algo);
   /* set dw to a random vector */
   w_minus->rand_grad(rg, -e, e);
   w_plus->copy_grad(*w_minus);
@@ -61,13 +61,13 @@ static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, id
   w_plus->add_grad(0.5);     /* w+ = w + dw/2 */
 
   /* make gpu shadow and send data to gpu */
-  to_dev(alpha, opt.gpu_algo);
-  to_dev(x, opt.gpu_algo);
-  to_dev(x_minus, opt.gpu_algo);
-  to_dev(x_plus, opt.gpu_algo);
-  to_dev(w, opt.gpu_algo);
-  to_dev(w_minus, opt.gpu_algo);
-  to_dev(w_plus, opt.gpu_algo);
+  to_dev(alpha, opt.cuda_algo);
+  to_dev(x, opt.cuda_algo);
+  to_dev(x_minus, opt.cuda_algo);
+  to_dev(x_plus, opt.cuda_algo);
+  to_dev(w, opt.cuda_algo);
+  to_dev(w_minus, opt.cuda_algo);
+  to_dev(w_plus, opt.cuda_algo);
   
   /* forward and backward */
   O& y = w->forward(*x, 1);
@@ -76,9 +76,9 @@ static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, id
   O& y_minus = w_minus->forward(*x_minus, 1);
   O& y_plus  = w_plus->forward(*x_plus, 1);
   /* get the results back to host */
-  to_host(w, opt.gpu_algo);
-  to_host(w_minus, opt.gpu_algo);
-  to_host(w_plus, opt.gpu_algo);
+  to_host(w, opt.cuda_algo);
+  to_host(w_minus, opt.cuda_algo);
+  to_host(w_plus, opt.cuda_algo);
 
   /* get the single loss values */
   double L_minus = alpha->dot(y_minus);
@@ -89,14 +89,14 @@ static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, id
   
   double rel_e = show_error(gx_dx, gw_dw, L_minus, L, L_plus);
   /* clean up */
-  del_dev(w, opt.gpu_algo);
-  del_dev(w_minus, opt.gpu_algo);
-  del_dev(w_plus, opt.gpu_algo);
-  del_dev(alpha, opt.gpu_algo);
-  del_dev(x, opt.gpu_algo);
-  del_dev(dx, opt.gpu_algo);
-  del_dev(x_minus, opt.gpu_algo);
-  del_dev(x_plus, opt.gpu_algo);
+  del_dev(w, opt.cuda_algo);
+  del_dev(w_minus, opt.cuda_algo);
+  del_dev(w_plus, opt.cuda_algo);
+  del_dev(alpha, opt.cuda_algo);
+  del_dev(x, opt.cuda_algo);
+  del_dev(dx, opt.cuda_algo);
+  del_dev(x_minus, opt.cuda_algo);
+  del_dev(x_plus, opt.cuda_algo);
   
   delete w;
   delete w_minus;
@@ -111,7 +111,7 @@ static double grad_check(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, id
 
 template<typename T, typename I0, typename I1, typename O, typename C>
 static double grad_check_loss(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cfg, idx_t B, idx_t nC) {
-  /* make weight and transfer to gpu if working on gpu */
+  /* make weight (layer struct or entire mnist) */
   T * w = new T();
   w->init(opt, lgr, rg, cfg);
   /* make input (x and t) */
@@ -128,14 +128,14 @@ static double grad_check_loss(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cf
   /* dx = random vector */
   I0 * dx = new I0();
   dx->init_uniform(B, rg, -e, e);
-  I0 * x_minus = make_copy(x, opt.gpu_algo);
-  I0 * x_plus  = make_copy(x, opt.gpu_algo);
+  I0 * x_minus = make_copy(x, opt.cuda_algo);
+  I0 * x_plus  = make_copy(x, opt.cuda_algo);
   x_minus->add_(-0.5, *dx);     /* x+ = x - dx/2 */
   x_plus->add_(0.5, *dx);       /* x- = x + dx/2 */
   
   /* make w - dw/2 and w + dw/2 */
-  T * w_minus = make_copy(w, opt.gpu_algo);
-  T * w_plus = make_copy(w, opt.gpu_algo);
+  T * w_minus = make_copy(w, opt.cuda_algo);
+  T * w_plus = make_copy(w, opt.cuda_algo);
   /* set dw to a random vector */
   w_minus->rand_grad(rg, -e, e);
   w_plus->copy_grad(*w_minus);
@@ -143,14 +143,14 @@ static double grad_check_loss(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cf
   w_plus->add_grad(0.5);     /* w+ = w + dw/2 */
 
   /* make gpu shadow and send data to gpu */
-  to_dev(alpha, opt.gpu_algo);
-  to_dev(x, opt.gpu_algo);
-  to_dev(x_minus, opt.gpu_algo);
-  to_dev(x_plus, opt.gpu_algo);
-  to_dev(t, opt.gpu_algo);
-  to_dev(w, opt.gpu_algo);
-  to_dev(w_minus, opt.gpu_algo);
-  to_dev(w_plus, opt.gpu_algo);
+  to_dev(alpha, opt.cuda_algo);
+  to_dev(x, opt.cuda_algo);
+  to_dev(x_minus, opt.cuda_algo);
+  to_dev(x_plus, opt.cuda_algo);
+  to_dev(t, opt.cuda_algo);
+  to_dev(w, opt.cuda_algo);
+  to_dev(w_minus, opt.cuda_algo);
+  to_dev(w_plus, opt.cuda_algo);
   
   /* forward and backward */
   O& y = w->forward(*x, *t, 1);
@@ -159,9 +159,9 @@ static double grad_check_loss(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cf
   O& y_minus = w_minus->forward(*x_minus, *t, 1);
   O& y_plus  = w_plus->forward(*x_plus, *t, 1);
   /* get the results back to host */
-  to_host(w, opt.gpu_algo);
-  to_host(w_minus, opt.gpu_algo);
-  to_host(w_plus, opt.gpu_algo);
+  to_host(w, opt.cuda_algo);
+  to_host(w_minus, opt.cuda_algo);
+  to_host(w_plus, opt.cuda_algo);
 
   /* get the single loss values */
   double L_minus = alpha->dot(y_minus);
@@ -172,15 +172,15 @@ static double grad_check_loss(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, C cf
   
   double rel_e = show_error(gx_dx, gw_dw, L_minus, L, L_plus);
   /* clean up */
-  del_dev(alpha, opt.gpu_algo);
-  del_dev(x, opt.gpu_algo);
-  del_dev(x_minus, opt.gpu_algo);
-  del_dev(x_plus, opt.gpu_algo);
-  del_dev(w, opt.gpu_algo);
-  del_dev(w_minus, opt.gpu_algo);
-  del_dev(w_plus, opt.gpu_algo);
-  del_dev(t, opt.gpu_algo);
-  del_dev(dx, opt.gpu_algo);
+  del_dev(alpha, opt.cuda_algo);
+  del_dev(x, opt.cuda_algo);
+  del_dev(x_minus, opt.cuda_algo);
+  del_dev(x_plus, opt.cuda_algo);
+  del_dev(w, opt.cuda_algo);
+  del_dev(w_minus, opt.cuda_algo);
+  del_dev(w_plus, opt.cuda_algo);
+  del_dev(t, opt.cuda_algo);
+  del_dev(dx, opt.cuda_algo);
   
   delete alpha;
   delete x;

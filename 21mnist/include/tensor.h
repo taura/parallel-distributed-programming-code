@@ -82,7 +82,7 @@ static void range_chk_(idx_t a, idx_t x, idx_t b,
 */
 template<typename T,idx_t N0,idx_t N1=1,idx_t N2=1,idx_t N3=1>
 struct tensor {
-#if __NVCC__
+#if __CUDACC__
   tensor<T,N0,N1,N2,N3> * dev;     /**< pointer to the device shadow */
 #endif
   idx_t n0;                      /**< actual number of elements across the first dimension */
@@ -390,65 +390,12 @@ struct tensor {
      @param (dev) device address (may be null)
    */
   void set_dev(tensor<T,N0,N1,N2,N3>* dev) {
-#if __NVCC__
+#if __CUDACC__
     this->dev = dev;
 #else
     (void)dev;
 #endif
   }
-
-#if 1
-  /**
-     @brief allocate and set the device shadow of this array if
-     requested by the parameter
-     @param (gpu) 1 to allocate the device shadow
-   */
-  void make_dev(int gpu) {
-#if __NVCC__
-    if (gpu) {
-      dev = (tensor<T,N0,N1,N2,N3>*)dev_malloc(sizeof(*this));
-    } else {
-      dev = 0;
-    }
-#else
-    (void)gpu;
-#endif
-  }
-  /**
-     @brief deallocate the device shadow of this array
-   */
-  void del_dev() {
-#if __NVCC__
-    if (dev) {
-      dev_free(dev);
-      dev = 0;
-    }
-#endif
-  }
-  /**
-     @brief send the data to its gpu shadow
-   */
-  void to_dev() {
-#if __NVCC__
-    if (dev) {
-      ::to_dev(dev, this, sizeof(*this));
-    }
-#endif
-  }
-  /**
-     @brief get the data back from gpu shadow to host
-   */
-  void to_host() {
-#if __NVCC__
-    if (dev) {
-      tensor<T,N0,N1,N2,N3> * dev_ = dev;
-      ::to_host(this, dev_, sizeof(*this));
-      assert(dev_ == dev);
-    }
-#endif
-  }
-
-#endif
 };
 
 /**

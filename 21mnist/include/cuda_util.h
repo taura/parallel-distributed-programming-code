@@ -187,19 +187,19 @@ __device__ inline int get_nthreads() {
    forward function for GPU
    @param (dev) the address of the device shadow of the object
    @param (x_dev) the address of the device shadow of the input matrix
-   @sa forward_dev
-   @sa forward_gpu
+   @sa forward_cuda_base_device
+   @sa forward_cuda_base
   */
 template<typename T, typename I>
-__global__ void forward_global(T* dev, I* x_dev, int training) {
+__global__ void forward_cuda_base_global(T* dev, I* x_dev, int training) {
   /* call the member function */
-  dev->forward_dev(*x_dev, training);
+  dev->forward_cuda_base_device(*x_dev, training);
 }
 
 template<typename T, typename I0, typename I1>
-  __global__ void forward_global(T* dev, I0* x_dev, I1* t_dev, int training) {
+__global__ void forward_cuda_base_global(T* dev, I0* x_dev, I1* t_dev, int training) {
   /* call the member function */
-  dev->forward_dev(*x_dev, *t_dev, training);
+  dev->forward_cuda_base_device(*x_dev, *t_dev, training);
 }
 
 /**
@@ -207,28 +207,28 @@ template<typename T, typename I0, typename I1>
    backward function for GPU
    @param (dev) the address of the device shadow of the object
    @param (gy_dev) the address of the device shadow of the input matrix
-   @sa backward_dev
-   @sa backward_gpu
+   @sa backward_cuda_base_device
+   @sa backward_cuda_base
   */
 template<typename T, typename O>
-__global__ void backward_global(T* dev, O* gy_dev) {
-  dev->backward_dev(*gy_dev);
+__global__ void backward_cuda_base_global(T* dev, O* gy_dev) {
+  dev->backward_cuda_base_device(*gy_dev);
 }
 
 template<typename T, typename O, typename I1>
-__global__ void backward_global(T* dev, O* gy_dev, I1* t_dev) {
-  dev->backward_dev(*gy_dev, *t_dev);
+__global__ void backward_cuda_base_global(T* dev, O* gy_dev, I1* t_dev) {
+  dev->backward_cuda_base_device(*gy_dev, *t_dev);
 }
 
 /**
    @brief a global CUDA function that implements the baseline 
    update function for GPU
    @param (dev) the address of the device shadow of the object
-   @sa update_dev
-   @sa update_gpu
+   @sa update_cuda_base_device
+   @sa update_cuda_base
   */
 template<typename T>
-__global__ void update_global(T* dev) {
-  dev->update_dev();
+__global__ void update_cuda_base_global(T* dev) {
+  dev->update_cuda_base_device();
 }
 

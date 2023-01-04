@@ -9,7 +9,7 @@
 
 template<idx_t N0,idx_t N1=1,idx_t N2=1,idx_t N3=1>
 struct AdaDelta {
-#if __NVCC__
+#if __CUDACC__
   AdaDelta<N0,N1,N2,N3> * dev; /**< device shadow */
 #endif
   tensor<real,N0,N1,N2,N3> v;
@@ -38,7 +38,7 @@ struct AdaDelta {
      if dev is not null, all dev fields become null.
   */
   void set_dev(AdaDelta<N0,N1,N2,N3>* dev) {
-#if __NVCC__
+#if __CUDACC__
     this->dev = dev;
 #else
     (void)dev;

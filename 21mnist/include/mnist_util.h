@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <ieee754.h>
 
-#if __NVCC__
+#if __CUDACC__
 #include "cuda_util.h"
 #else
 /** 
@@ -56,20 +56,21 @@ static void bail() {
 }
 
 /**
-   @brief signal a fatal error when a gpu algorithm gets called for cpu-only compilation
+   @brief signal a fatal error when a CUDA GPU function gets called when it is not compiled 
+   by CUDA-enabled compiler setting
  */
-__attribute__((unused))
-static void err_gpu_algo_no_gpu_(const char * file, int line, const char * algo_s) {
+static void err_cuda_code_non_cuda_compiler_(const char * file, int line, const char * algo_s) {
   fprintf(stderr,
-          "error:%s:%d: a GPU algorithm (%s) specified for CPU-only compilation\n",
+          "error:%s:%d: a supposedly CUDA function (%s) compiled by non-CUDA compiler and gets called\n",
           file, line, algo_s);
   bail();
 }
 
 /**
-   @brief signal a fatal error when a gpu algorithm gets called for cpu-only compilation
+   @brief signal a fatal error when a CUDA GPU function gets called when it is not compiled 
+   by CUDA-enabled compiler setting
  */
-#define err_gpu_algo_no_gpu(algo_s) err_gpu_algo_no_gpu_(__FILE__, __LINE__, algo_s)
+#define err_cuda_code_non_cuda_compiler(algo_s) err_cuda_code_non_cuda_compiler_(__FILE__, __LINE__, algo_s)
 
 /**
    @brief an enumeration of implemented algorithms
@@ -77,15 +78,15 @@ static void err_gpu_algo_no_gpu_(const char * file, int line, const char * algo_
  */
 typedef enum {
   algo_cpu_base,
-  algo_gpu_base,
+  algo_cuda_base,
   /* add your new algorithm here (name it arbitrarily) */
   /* algo_cpu_simd? */
   /* algo_cpu_omp */
   /* algo_cpu_simd_omp? */
   /* algo_cpu_fast? */
-  /* algo_gpu_fast? */
+  /* algo_cuda_fast? */
   /* algo_cpu_super_fast? */
-  /* algo_gpu_super_fast? */
+  /* algo_cuda_super_fast? */
   
   algo_invalid,
 } algo_t;
@@ -98,8 +99,8 @@ typedef enum {
 static algo_t parse_algo(const char * s) {
   if (strcmp(s, "cpu_base") == 0) {
     return algo_cpu_base;
-  } else if (strcmp(s, "gpu_base") == 0) {
-    return algo_gpu_base;
+  } else if (strcmp(s, "cuda_base") == 0) {
+    return algo_cuda_base;
     /* add cases here to handle your algorithms
        } else if (strcmp(s, "cpu_fast") == 0) {
        return algo_cpu_fast;
@@ -111,19 +112,19 @@ static algo_t parse_algo(const char * s) {
 
 /**
    @brief return 1 if the algorithm name (s) or its
-   enum value (a) is a gpu algorithm 
+   enum value (a) is a CUDA algorithm 
    @details when you add your algorithm, you may need to 
    change this function so that it correctly recognizes 
-   whether it is a gpu algorithm or not
+   whether it is a CUDA algorithm or not
    currently, it considers all and only strings starting 
-   with "gpu" to be a gpu algorithm.
-   for a gpu algorithm, the program transfers initial weights
+   with "cuda" to be a CUDA algorithm.
+   for a cuda algorithm, the program transfers initial weights
    and training data to gpu.  weights stay on GPU until
    the program finishes.  
   */
-static int algo_is_gpu(const char * s, algo_t a) {
+static int algo_is_cuda(const char * s, algo_t a) {
   (void)a;
-  if (strncmp(s, "gpu", 3) == 0) {
+  if (strncmp(s, "cuda", 4) == 0) {
     return 1;
   } else { 
     return 0;
@@ -148,7 +149,7 @@ struct cmdline_opt {
   int grad_dbg;                 /**< 1 if we debug gradient */
   const char * algo_s;          /**< string passed to --algo */
   algo_t algo;                  /**< parse_algo(algo_s)  */
-  int gpu_algo;                 /**< 1 if this is a GPU algorithm  */
+  int cuda_algo;                 /**< 1 if this is a CUDA algorithm  */
   const char * log;             /**< log file name */
   int help;                     /**< 1 if -h,--help is given  */
   int error;                    /**< set to one if any option is invalid */
@@ -161,19 +162,19 @@ struct cmdline_opt {
     lr = 1.0;
     epochs = 14;
     batch_size = MAX_BATCH_SIZE;
-    train_data_size = 0;
-    test_data_size = 0;
+    train_data_size = -1;
+    test_data_size = -1;
     log_interval = 10;
     weight_seed  = 45678901234523L;
     dropout_seed_1 = 56789012345234L;
     dropout_seed_2 = 67890123452345L;
     grad_dbg = 0;
-#if __NVCC__    
-    algo_s = "gpu_base";
-    gpu_algo = 1;
+#if __CUDACC__    
+    algo_s = "cuda_base";
+    cuda_algo = 1;
 #else
     algo_s = "cpu_base";
-    gpu_algo = 0;
+    cuda_algo = 0;
 #endif
     algo = algo_invalid;
     log = "mnist.log";
@@ -327,10 +328,10 @@ static cmdline_opt parse_args(int argc, char ** argv) {
     opt.error = 1;
     return opt;
   }
-  opt.gpu_algo = algo_is_gpu(opt.algo_s, opt.algo);
-#if !__NVCC__
-  if (opt.gpu_algo) {
-    fprintf(stderr, "error: --gpu 1 allowed only with nvcc\n");
+  opt.cuda_algo = algo_is_cuda(opt.algo_s, opt.algo);
+#if !__CUDACC__
+  if (opt.cuda_algo) {
+    fprintf(stderr, "error: --cuda-base 1 allowed only with nvcc\n");
     opt.error = 1;
     return opt;
   }
@@ -478,17 +479,17 @@ struct rnd_gen_t {
 };
 
 /**
-   @brief if the algorithm is a gpu algorithm, allocate a device shadow 
+   @brief if the algorithm is a CUDA algorithm, allocate a device shadow 
    of this object and set dev field of this and all subobjects. otherwise
    it sets all dev fields to null.
    @sa set_dev
    @sa del_dev
 */
 template<typename T>
-T * make_dev(T * layer, int gpu_algo) {
-#if __NVCC__
+T * make_dev(T * layer, int cuda_algo) {
+#if __CUDACC__
   assert(layer->dev == 0);
-  if (gpu_algo) {
+  if (cuda_algo) {
     T * dev_ = (T*)dev_malloc(sizeof(T));
     layer->set_dev(dev_);
     return dev_;
@@ -496,7 +497,7 @@ T * make_dev(T * layer, int gpu_algo) {
     return 0;
   }
 #else
-  (void)gpu_algo;
+  (void)cuda_algo;
   (void)layer;
   return 0;
 #endif
@@ -508,67 +509,69 @@ T * make_dev(T * layer, int gpu_algo) {
    a device pointer too, but its contents are NOT copied
 */
 template<typename T>
-T* make_copy(T * layer, int gpu_algo) {
+T* make_copy(T * layer, int cuda_algo) {
   T * c = new T(*layer);
-#if __NVCC__
+#if __CUDACC__
   c->dev = 0;
-  make_dev(c, gpu_algo);
+  make_dev(c, cuda_algo);
+#else
+  (void)cuda_algo;
 #endif
   return c;
 }
 /**
-   @brief if the algorithm is a gpu algorithm, dev field must not
+   @brief if the algorithm is a CUDA algorithm, dev field must not
    be null and deallocate it.
    @sa make_dev
    @sa set_dev
 */
 template<typename T>
-void del_dev(T * layer, int gpu_algo) {
-#if __NVCC__
-  if (gpu_algo) {
+void del_dev(T * layer, int cuda_algo) {
+#if __CUDACC__
+  if (cuda_algo) {
     if (layer->dev) {
       dev_free(layer->dev);
       layer->dev = 0;
     }
   }
 #else
-  (void)gpu_algo;
+  (void)cuda_algo;
   (void)layer;
 #endif
 }
 /**
-   @brief if the algorithm is a gpu algorithm, dev field must
+   @brief if the algorithm is a CUDA algorithm, dev field must
    not be null and send the host data to the device memory
 */
 template<typename T>
-void to_dev(T * layer, int gpu_algo) {
-#if __NVCC__
-  if (gpu_algo) {
+void to_dev(T * layer, int cuda_algo) {
+#if __CUDACC__
+  if (cuda_algo) {
     T* dev_ = layer->dev;
     if (!dev_) {
-      dev_ = make_dev(layer, gpu_algo);
+      dev_ = make_dev(layer, cuda_algo);
     }
     ::to_dev(dev_, layer, sizeof(T));
   }
 #else
-  (void)gpu_algo;
+  (void)cuda_algo;
   (void)layer;
 #endif
 }
 /**
-   @brief if the algorithm is a gpu algorithm, dev field must
+   @brief if the algorithm is a CUDA algorithm, dev field must
    not be null and send the device data to the host memory
 */
 template<typename T>
-void to_host(T * layer, int gpu_algo) {
-#if __NVCC__
-  if (gpu_algo) {
+void to_host(T * layer, int cuda_algo) {
+#if __CUDACC__
+  if (cuda_algo) {
     T * dev_ = layer->dev;
     assert(dev_);
     ::to_host(layer, dev_, sizeof(T));
   }
 #else
-  (void)gpu_algo;
+  (void)cuda_algo;
   (void)layer;
 #endif
 }

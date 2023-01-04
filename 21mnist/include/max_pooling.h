@@ -1,5 +1,5 @@
 /**
-   @file maxpooling.h
+   @file max_pooling.h
    @brief max pooling layer
  */
 #pragma once
@@ -9,17 +9,18 @@
 #include "grad_check.h"
 
 /**
+   @brief configuration data for Maxpooling2D
+   @details no configuration currently exist
+*/
+struct MaxPooling2DCfg { };
+
+/**
    @brief max pooling layer
 
    @param (maxB) the maximum number of images (batch size)
-   @param (C) the number of channels per input image (the 
-               original input has typically three channels for RGB. 
-               in hidden layers, it starts from 64 and goes up 
-               to 512 in the last hidden layer)
-   @param (H) height of an image (32 for an input image, down to 1 in
-              the last hidden layer)
-   @param (W) width of an image (32 for an input image, down to 1 in
-              the last hidden layer)
+   @param (C) the number of channels per input image
+   @param (H) height of an image
+   @param (W) width of an image
    @param (S) shrink factor of pooling layers (2)
 
    @details this layer implements max pooling. it takes SxS patch of 
@@ -27,12 +28,9 @@
    output (H/S)x(W/S) image
 
  */
-struct MaxPooling2DCfg {
-};
-
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t S>
 struct MaxPooling2D {
-#if __NVCC__
+#if __CUDACC__
   MaxPooling2D<maxB,C,H,W,S>* dev; /**< device shadow  */
 #endif
   cmdline_opt opt;              /**< command line option */
@@ -42,9 +40,11 @@ struct MaxPooling2D {
   tensor<idx_t,maxB,C,H/S,W/S> argmax_j; /**< the index that gave the maximum of each output pixel */
   tensor<real,maxB,C,H,W> gx;          /**< gradient of loss wrt to input x */
   /**
-     @brief initialize 
+     @brief initialize the layer
      @param (opt) command line options
      @param (lgr) logger
+     @param (rg) random number generator for initializing weights
+     @param (cfg) configuration parameters
   */
   void init(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, MaxPooling2DCfg cfg) {
     this->opt = opt;
@@ -55,14 +55,13 @@ struct MaxPooling2D {
   /**
      @brief set the device pointer for this and all subobjects
      @param (dev) a device memory or null
-     @sa make_dev
-     @sa del_dev
+
      @details if dev is not null, dev fields of all subojects 
      point to the corresponding subjects in the device memory.
      if dev is not null, all dev fields become null.
   */
   void set_dev(MaxPooling2D<maxB,C,H,W,S>* dev) {
-#if __NVCC__
+#if __CUDACC__
     this->dev = dev;
     y.set_dev(dev ? &dev->y : 0);
     argmax_i.set_dev(dev ? &dev->argmax_i : 0);
@@ -75,15 +74,20 @@ struct MaxPooling2D {
 
   /**
      @brief the baseline (serial) implementation of forward
-     called both by cpu implementation (forward_cpu) and 
-     gpu implementation (forward_dev). the call sequence
-     forward -> forward_cpu -> forward_base on cpu and
-     and is forward -> forward_gpu -> forward_global -> forward_dev -> forward_base
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
+
+     @details called both by cpu implementation (forward_cpu_base) and
+     cuda implementation (forward_cuda_base). the call sequence
+     forward -> forward_cpu_base -> forward_base on cpu and and is
+     forward -> forward_cuda_base -> forward_cuda_base_global ->
+     forward_cuda_base_device -> forward_base
+
      @sa forward
-     @sa forward_gpu
-     @sa forward_global
-     @sa forward_dev
+     @sa forward_cpu_base
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
   */
   __device__ __host__
   void forward_base(tensor<real,maxB,C,H,W>& x, int training) {
@@ -116,46 +120,59 @@ struct MaxPooling2D {
       }
     }
   }
-#if __NVCC__
   /**
      @brief the device function of forward called from the 
      global (non-member) function
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
      @sa forward
-     @sa forward_gpu
-     @sa forward_global
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
      @sa forward_base
   */
   __device__
-  void forward_dev(tensor<real,maxB,C,H,W>& x, int training) {
+  void forward_cuda_base_device(tensor<real,maxB,C,H,W>& x, int training) {
     forward_base(x, training);
   }
   /**
-     @brief a gpu version of baseline code called from the 
+     @brief a cuda version of baseline code called from the 
      entry function (forward)
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
      @sa forward
-     @sa forward_global
-     @sa forward_dev
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
      @sa forward_base
   */
-  void forward_gpu(tensor<real,maxB,C,H,W>& x, int training) {
-    launch_and_sync((forward_global<<<1,1>>>(dev, x.dev, training)));
-  }
+  void forward_cuda_base(tensor<real,maxB,C,H,W>& x, int training) {
+#if __CUDACC__
+    launch_and_sync((forward_cuda_base_global<<<1,1>>>(dev, x.dev, training)));
+#else
+    (void)x;
+    (void)training;
+    err_cuda_code_non_cuda_compiler(opt.algo_s);
 #endif
+  }
   /**
      @brief a cpu version of baseline code called from the 
      entry function (forward)
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
      @sa forward
      @sa forward_base
   */
-  void forward_cpu(tensor<real,maxB,C,H,W>& x, int training) {
+  void forward_cpu_base(tensor<real,maxB,C,H,W>& x, int training) {
     forward_base(x, training);
   }
   /**
-     @brief calc the loss function of a mini-batch (x)
+     @brief forward phase of the layer
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
+     @sa forward_base
+     @sa forward_cpu_base
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
      @sa backward
      @sa update
   */
@@ -165,20 +182,14 @@ struct MaxPooling2D {
     switch (opt.algo) {
       /* add case for your implementations here */
     case algo_cpu_base:
-      forward_cpu(x, training); break;
-#if __NVCC__
-    case algo_gpu_base:
-      forward_gpu(x, training); break;
-#endif
+      forward_cpu_base(x, training); break;
+    case algo_cuda_base:
+      forward_cuda_base(x, training); break;
     default:
-      if (opt.gpu_algo) {
-#if __NVCC__
-        forward_gpu(x, training);
-#else
-        err_gpu_algo_no_gpu(opt.algo_s);
-#endif
+      if (opt.cuda_algo) {
+        forward_cuda_base(x, training);
       } else {
-        forward_cpu(x, training);
+        forward_cpu_base(x, training);
       }        
     }
     tsc_t t1 = get_tsc();
@@ -187,15 +198,18 @@ struct MaxPooling2D {
   }
   /**
      @brief the baseline (serial) implementation of backward
-     called both by cpu implementation (backward_cpu) and 
-     gpu implementation (backward_dev). the call sequence
-     backward -> backward_cpu -> backward_base on cpu and
-     and is backward -> backward_gpu -> backward_global -> backward_dev -> backward_base
      @param (gy) gradient of loss with respect to the output
+     @details called both by cpu implementation (backward_cpu_base)
+     and cuda implementation (backward_cuda_base). the call sequence
+     backward -> backward_cpu_base -> backward_base on cpu and and is
+     backward -> backward_cuda_base -> backward_cuda_base_global ->
+     backward_cuda_base_device -> backward_base
      @sa backward
-     @sa backward_gpu
-     @sa backward_global
-     @sa backward_dev
+     @sa backward_cpu_base
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
+     @sa backward_base
   */
   __device__ __host__
   void backward_base(tensor<real,maxB,C,H/S,W/S>& gy) {
@@ -222,33 +236,36 @@ struct MaxPooling2D {
       }
     }
   }
-#if __NVCC__
   /**
      @brief the device function of backward called from the 
      global (non-member) function
      @param (gy) gradient of loss with respect to the output
      @sa backward
-     @sa backward_gpu
-     @sa backward_global
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
      @sa backward_base
   */
   __device__
-  void backward_dev(tensor<real,maxB,C,H/S,W/S>& gy) {
+  void backward_cuda_base_device(tensor<real,maxB,C,H/S,W/S>& gy) {
     backward_base(gy);
   }
   /**
-     @brief a gpu version of baseline code called from the 
+     @brief a cuda version of baseline code called from the 
      entry function (backward)
      @param (gy) gradient of loss with respect to the output
      @sa backward
-     @sa backward_global
-     @sa backward_dev
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
      @sa backward_base
   */
-  void backward_gpu(tensor<real,maxB,C,H/S,W/S>& gy) {
-    launch_and_sync((backward_global<<<1,1>>>(dev, gy.dev)));
-  }
+  void backward_cuda_base(tensor<real,maxB,C,H/S,W/S>& gy) {
+#if __CUDACC__
+    launch_and_sync((backward_cuda_base_global<<<1,1>>>(dev, gy.dev)));
+#else
+    (void)gy;
+    err_cuda_code_non_cuda_compiler(opt.algo_s);
 #endif
+  }
   /**
      @brief a cpu version of baseline code called from the 
      entry function (backward)
@@ -256,7 +273,7 @@ struct MaxPooling2D {
      @sa backward
      @sa backward_base
   */
-  void backward_cpu(tensor<real,maxB,C,H/S,W/S>& gy) {
+  void backward_cpu_base(tensor<real,maxB,C,H/S,W/S>& gy) {
     backward_base(gy);
   }
   /**
@@ -267,6 +284,11 @@ struct MaxPooling2D {
      all sublayers that have weights. since this is the entire
      network, gy is actually a vector whose components are all 1.
      (loss = sum of losses of each data).
+     @sa backward_cpu_base
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
+     @sa backward_base
      @sa forward
      @sa update
   */
@@ -276,20 +298,14 @@ struct MaxPooling2D {
     switch (opt.algo) {
       /* add case for your implementations here */
     case algo_cpu_base:
-      backward_cpu(gy); break;
-#if __NVCC__
-    case algo_gpu_base:
-      backward_gpu(gy); break;
-#endif
+      backward_cpu_base(gy); break;
+    case algo_cuda_base:
+      backward_cuda_base(gy); break;
     default:
-      if (opt.gpu_algo) {
-#if __NVCC__
-        backward_gpu(gy);
-#else
-        err_gpu_algo_no_gpu(opt.algo_s);
-#endif
+      if (opt.cuda_algo) {
+        backward_cuda_base(gy);
       } else {
-        backward_cpu(gy);
+        backward_cpu_base(gy);
       }        
     }
     tsc_t t1 = get_tsc();
@@ -302,6 +318,7 @@ struct MaxPooling2D {
      @param (rg) random number generator
      @param (p) minimum value of a component
      @param (q) maximum value of a component
+     @details as this layer has no weights, it's noop
   */
   void rand_grad(rnd_gen_t& rg, real p, real q) {
     (void)rg;
@@ -309,15 +326,17 @@ struct MaxPooling2D {
     (void)q;
   }
   /**
-     @brief set all gradients to gradients of another object
+     @brief set all gradients to gradients of another object o
      @param (o) the object from which gradients get copied
-     @details transfer gradients of o to this object
+     @details as this layer has no weights, it's noop
   */
   void copy_grad(MaxPooling2D<maxB,C,H,W,S>& o) {
     (void)o;
   }
   /**
      @brief w += alpha * gw
+     @param (alpha) alpha of w += alpha * gw
+     @details as this layer has no weights, it's noop
   */
   void add_grad(real alpha) {
     (void)alpha;
@@ -325,8 +344,7 @@ struct MaxPooling2D {
   /**
      @brief take the inner product of gradients
      @param (o) the object to take the inner product with
-     @details take the inner product of this object's 
-     gradients and b's gradients
+     @details as this layer has no weights, it returns zero
   */
   double grad_dot_grad(MaxPooling2D<maxB,C,H,W,S>& o) {
     (void)o;
@@ -338,13 +356,13 @@ struct MaxPooling2D {
    @brief entry point of this header file
    @param (argc) the number of command line args
    @param (argv) command line args
-   @sa maxpooling_grad_check_rand
+   @sa grad_check
    @details if this header file is included from
-   a main C++ file and define maxpooling_main to be main
-   (e.g., with -Dmaxpooling_main=main), then this
+   a main C++ file and define max_pooling_main to be main
+   (e.g., with -Dmax_pooling_main=main), then this
    function becomes th main function of the executable.
-   it calls maxpooling_grad_check_rand repeatedly to test
-   the implementation of VGG network.
+   it calls grad_check repeatedly to test
+   the implementation of backward of max_pooling.
 */
 int max_pooling_main(int argc, char ** argv) {
   cmdline_opt opt = parse_args(argc, argv);

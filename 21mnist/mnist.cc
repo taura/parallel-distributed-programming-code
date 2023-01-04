@@ -15,10 +15,10 @@
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t nC>
 static void train(MNIST<maxB,C,H,W,nC> * mnist,
                   mnist_dataset<maxB,C,H,W>& data, idx_t B,
-                  logger& lgr, long epoch, long log_interval) {
+                  logger& lgr, int cuda_algo, long epoch, long log_interval) {
   data.rewind();
   long n_samples = 0;
-  for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B); batch_idx++) {
+  for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B, cuda_algo); batch_idx++) {
     real Lsum = mnist->forward_backward_update(mnist->x, mnist->t);
     real L = Lsum / mnist->idxs.n0;
     mnist->predict(mnist->pred);
@@ -40,22 +40,24 @@ static void train(MNIST<maxB,C,H,W,nC> * mnist,
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t nC>
 static void test(MNIST<maxB,C,H,W,nC> * mnist,
                  mnist_dataset<maxB,C,H,W>& data, idx_t B,
-                 logger& lgr) {
+                 logger& lgr, int cuda_algo) {
   real Lsum = 0.0;
   long n_samples = 0;
   long n_correct = 0;
   data.rewind();
-  for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B); batch_idx++) {
+  while (data.get_data(mnist->x, mnist->t, mnist->idxs, B, cuda_algo)) {
     tensor<real,maxB>& y = mnist->forward(mnist->x, mnist->t, 0);
-    y.to_host();
+    to_host(&y, cuda_algo);
     mnist->predict(mnist->pred);
     Lsum += y.sum();
     n_samples += y.n0;
     n_correct += mnist->log_prediction(n_samples, mnist->pred, mnist->t);
   }
   assert(n_samples == data.n_data);
-  lgr.log(1, "Test set: Average loss: %.4f, Accuracy: %ld/%ld (%.0f%%)",
-          Lsum / n_samples, n_correct, n_samples, (100. * n_correct) / n_samples);
+  if (n_samples > 0) {
+    lgr.log(1, "Test set: Average loss: %.4f, Accuracy: %ld/%ld (%.0f%%)",
+            Lsum / n_samples, n_correct, n_samples, (100. * n_correct) / n_samples);
+  }
 }
 
 /**
@@ -104,8 +106,7 @@ int main(int argc, char ** argv) {
   };
   MNIST<maxB,C,H,W,nC> * mnist = new MNIST<maxB,C,H,W,nC>();
   mnist->init(opt, &lgr, rg, cfg);
-  make_dev(mnist, opt.gpu_algo);
-  to_dev(mnist, opt.gpu_algo);
+  to_dev(mnist, opt.cuda_algo);
   lgr.log(1, "model building ends");
   /* load data */
   mnist_dataset<maxB,C,H,W> train_data;
@@ -117,8 +118,8 @@ int main(int argc, char ** argv) {
   /* training loop */
   lgr.log(1, "training starts");
   for (long i = 0; i < opt.epochs; i++) {
-    train(mnist, train_data, B, lgr, i + 1, opt.log_interval);
-    test(mnist, test_data, B, lgr);
+    train(mnist, train_data, B, lgr, opt.cuda_algo, i + 1, opt.log_interval);
+    test(mnist, test_data, B, lgr, opt.cuda_algo);
   }
   lgr.log(1, "training ends");
   lgr.end_log();

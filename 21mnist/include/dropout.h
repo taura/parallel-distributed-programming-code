@@ -9,29 +9,29 @@
 #include "grad_check.h"
 
 /**
-   @brief dropout layer
-
-   @param (maxB) the maximum number of images (batch size)
-   @param (C) the number of channels per input image (the 
-               original input has typically three channels for RGB. 
-               in hidden layers, it starts from 64 and goes up 
-               to 512 in the last hidden layer)
-   @param (H) height of an image (32 for an input image, down to 1 in
-              the last hidden layer)
-   @param (W) width of an image (32 for an input image, down to 1 in
-              the last hidden layer)
-
-   @details this layer normalizes a batch of images 
-
- */
+   @brief configuration data for Dropout
+*/
 struct DropoutCfg {
-  real ratio;
-  long seed;
+  real ratio;                   /**< the probability to drop (zero) an element */
+  long seed;                    /**< random number seed */
 };
 
+/**
+   @brief dropout layer
+
+   @param (N0) first dimension
+   @param (N1) second dimension
+   @param (N2) third dimension
+   @param (N3) fourth dimension
+
+   @details y(i0,i1,i2,i3) = 0 with a specified probability 
+                             x(i0,i1,i2,i3) otherwise
+   for all i0, i1, i2 and i3.
+
+ */
 template<idx_t N0,idx_t N1,idx_t N2=1,idx_t N3=1>
 struct Dropout {
-#if __NVCC__
+#if __CUDACC__
   Dropout<N0,N1,N2,N3>* dev;     /**< device shadow */
 #endif
   cmdline_opt opt;              /**< command line option */
@@ -42,12 +42,11 @@ struct Dropout {
   real drop_ratio;              /**< drop probability */
   long state_forward;           /**< random number state at the forward function */
   /**
-     @brief initialize 
+     @brief initialize the layer
      @param (opt) command line options
      @param (lgr) logger
-     @param (drop_ratio) the probability each cell is dropped out
-     @param (drop_seed) the seed of the random number generator used
-     to determine dropout
+     @param (rg) random number generator for initializing weights
+     @param (cfg) configuration parameters
   */
   void init(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, DropoutCfg cfg) {
     this->opt = opt;
@@ -59,14 +58,13 @@ struct Dropout {
   /**
      @brief set the device pointer for this and all subobjects
      @param (dev) a device memory or null
-     @sa make_dev
-     @sa del_dev
+
      @details if dev is not null, dev fields of all subojects 
      point to the corresponding subjects in the device memory.
      if dev is not null, all dev fields become null.
   */
   void set_dev(Dropout<N0,N1,N2,N3>* dev) {
-#if __NVCC__
+#if __CUDACC__
     this->dev = dev;
     y.set_dev(dev ? &dev->y : 0);
     gx.set_dev(dev ? &dev->gx : 0);
@@ -76,15 +74,20 @@ struct Dropout {
   }
   /**
      @brief the baseline (serial) implementation of forward
-     called both by cpu implementation (forward_cpu) and 
-     gpu implementation (forward_dev). the call sequence
-     forward -> forward_cpu -> forward_base on cpu and
-     and is forward -> forward_gpu -> forward_global -> forward_dev -> forward_base
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
+
+     @details called both by cpu implementation (forward_cpu_base) and
+     cuda implementation (forward_cuda_base). the call sequence
+     forward -> forward_cpu_base -> forward_base on cpu and and is
+     forward -> forward_cuda_base -> forward_cuda_base_global ->
+     forward_cuda_base_device -> forward_base
+
      @sa forward
-     @sa forward_gpu
-     @sa forward_global
-     @sa forward_dev
+     @sa forward_cpu_base
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
   */
   __device__ __host__
   void forward_base(tensor<real,N0,N1,N2,N3>& x, int training) {
@@ -110,46 +113,59 @@ struct Dropout {
       }
     }
   }
-#if __NVCC__
   /**
      @brief the device function of forward called from the 
      global (non-member) function
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
      @sa forward
-     @sa forward_gpu
-     @sa forward_global
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
      @sa forward_base
   */
   __device__
-  void forward_dev(tensor<real,N0,N1,N2,N3>& x, int training) {
+  void forward_cuda_base_device(tensor<real,N0,N1,N2,N3>& x, int training) {
     forward_base(x, training);
   }
   /**
-     @brief a gpu version of baseline code called from the 
+     @brief a cuda version of baseline code called from the 
      entry function (forward)
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
      @sa forward
-     @sa forward_global
-     @sa forward_dev
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
      @sa forward_base
   */
-  void forward_gpu(tensor<real,N0,N1,N2,N3>& x, int training) {
-    launch_and_sync((forward_global<<<1,1>>>(dev, x.dev, training)));
-  }
+  void forward_cuda_base(tensor<real,N0,N1,N2,N3>& x, int training) {
+#if __CUDACC__
+    launch_and_sync((forward_cuda_base_global<<<1,1>>>(dev, x.dev, training)));
+#else
+    (void)x;
+    (void)training;
+    err_cuda_code_non_cuda_compiler(opt.algo_s);
 #endif
+  }
   /**
      @brief a cpu version of baseline code called from the 
      entry function (forward)
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
      @sa forward
      @sa forward_base
   */
-  void forward_cpu(tensor<real,N0,N1,N2,N3>& x, int training) {
+  void forward_cpu_base(tensor<real,N0,N1,N2,N3>& x, int training) {
     forward_base(x, training);
   }
   /**
-     @brief calc the loss function of a mini-batch (x)
+     @brief forward phase of the layer
      @param (x) input images
+     @param (training) 1 if it is called in training not testing
+     @sa forward_base
+     @sa forward_cpu_base
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
      @sa backward
      @sa update
   */
@@ -159,20 +175,14 @@ struct Dropout {
     switch (opt.algo) {
       /* add case for your implementations here */
     case algo_cpu_base:
-      forward_cpu(x, training); break;
-#if __NVCC__
-    case algo_gpu_base:
-      forward_gpu(x, training); break;
-#endif
+      forward_cpu_base(x, training); break;
+    case algo_cuda_base:
+      forward_cuda_base(x, training); break;
     default:
-      if (opt.gpu_algo) {
-#if __NVCC__
-        forward_gpu(x, training);
-#else
-        err_gpu_algo_no_gpu(opt.algo_s);
-#endif
+      if (opt.cuda_algo) {
+        forward_cuda_base(x, training);
       } else {
-        forward_cpu(x, training);
+        forward_cpu_base(x, training);
       }        
     }
     tsc_t t1 = get_tsc();
@@ -181,15 +191,18 @@ struct Dropout {
   }
   /**
      @brief the baseline (serial) implementation of backward
-     called both by cpu implementation (backward_cpu) and 
-     gpu implementation (backward_dev). the call sequence
-     backward -> backward_cpu -> backward_base on cpu and
-     and is backward -> backward_gpu -> backward_global -> backward_dev -> backward_base
      @param (gy) gradient of loss with respect to the output
+     @details called both by cpu implementation (backward_cpu_base)
+     and cuda implementation (backward_cuda_base). the call sequence
+     backward -> backward_cpu_base -> backward_base on cpu and and is
+     backward -> backward_cuda_base -> backward_cuda_base_global ->
+     backward_cuda_base_device -> backward_base
      @sa backward
-     @sa backward_gpu
-     @sa backward_global
-     @sa backward_dev
+     @sa backward_cpu_base
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
+     @sa backward_base
   */
   __device__ __host__
   void backward_base(tensor<real,N0,N1,N2,N3>& gy) {
@@ -211,33 +224,36 @@ struct Dropout {
       }
     }
   }
-#if __NVCC__
   /**
      @brief the device function of backward called from the 
      global (non-member) function
      @param (gy) gradient of loss with respect to the output
      @sa backward
-     @sa backward_gpu
-     @sa backward_global
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
      @sa backward_base
   */
   __device__
-  void backward_dev(tensor<real,N0,N1,N2,N3>& gy) {
+  void backward_cuda_base_device(tensor<real,N0,N1,N2,N3>& gy) {
     backward_base(gy);
   }
   /**
-     @brief a gpu version of baseline code called from the 
+     @brief a cuda version of baseline code called from the 
      entry function (backward)
      @param (gy) gradient of loss with respect to the output
      @sa backward
-     @sa backward_global
-     @sa backward_dev
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
      @sa backward_base
   */
-  void backward_gpu(tensor<real,N0,N1,N2,N3>& gy) {
-    launch_and_sync((backward_global<<<1,1>>>(dev, gy.dev)));
-  }
+  void backward_cuda_base(tensor<real,N0,N1,N2,N3>& gy) {
+#if __CUDACC__
+    launch_and_sync((backward_cuda_base_global<<<1,1>>>(dev, gy.dev)));
+#else
+    (void)gy;
+    err_cuda_code_non_cuda_compiler(opt.algo_s);
 #endif
+  }
   /**
      @brief a cpu version of baseline code called from the 
      entry function (backward)
@@ -245,7 +261,7 @@ struct Dropout {
      @sa backward
      @sa backward_base
   */
-  void backward_cpu(tensor<real,N0,N1,N2,N3>& gy) {
+  void backward_cpu_base(tensor<real,N0,N1,N2,N3>& gy) {
     backward_base(gy);
   }
   /**
@@ -256,6 +272,11 @@ struct Dropout {
      all sublayers that have weights. since this is the entire
      network, gy is actually a vector whose components are all 1.
      (loss = sum of losses of each data).
+     @sa backward_cpu_base
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
+     @sa backward_base
      @sa forward
      @sa update
   */
@@ -265,20 +286,14 @@ struct Dropout {
     switch (opt.algo) {
       /* add case for your implementations here */
     case algo_cpu_base:
-      backward_cpu(gy); break;
-#if __NVCC__
-    case algo_gpu_base:
-      backward_gpu(gy); break;
-#endif
+      backward_cpu_base(gy); break;
+    case algo_cuda_base:
+      backward_cuda_base(gy); break;
     default:
-      if (opt.gpu_algo) {
-#if __NVCC__
-        backward_gpu(gy);
-#else
-        err_gpu_algo_no_gpu(opt.algo_s);
-#endif
+      if (opt.cuda_algo) {
+        backward_cuda_base(gy);
       } else {
-        backward_cpu(gy);
+        backward_cpu_base(gy);
       }        
     }
     tsc_t t1 = get_tsc();
@@ -291,6 +306,7 @@ struct Dropout {
      @param (rg) random number generator
      @param (p) minimum value of a component
      @param (q) maximum value of a component
+     @details as this layer has no weights, it's noop
   */
   void rand_grad(rnd_gen_t& rg, real p, real q) {
     (void)rg;
@@ -298,15 +314,17 @@ struct Dropout {
     (void)q;
 }
   /**
-     @brief set all gradients to gradients of another object
+     @brief set all gradients to gradients of another object o
      @param (o) the object from which gradients get copied
-     @details transfer gradients of o to this object
+     @details as this layer has no weights, it's noop
   */
   void copy_grad(Dropout<N0,N1,N2,N3>& o) {
     (void)o;
   }
   /**
      @brief w += alpha * gw
+     @param (alpha) alpha of w += alpha * gw
+     @details as this layer has no weights, it's noop
   */
   void add_grad(real alpha) {
     (void)alpha;
@@ -314,27 +332,25 @@ struct Dropout {
   /**
      @brief take the inner product of gradients
      @param (o) the object to take the inner product with
-     @details take the inner product of this object's 
-     gradients and b's gradients
+     @details as this layer has no weights, it returns zero
   */
   double grad_dot_grad(Dropout<N0,N1,N2,N3>& o) {
     (void)o;
     return 0.0;
   }
-
 };
 
 /**
    @brief entry point of this header file
    @param (argc) the number of command line args
    @param (argv) command line args
-   @sa dropout_grad_check_rand
+   @sa grad_check
    @details if this header file is included from
    a main C++ file and define dropout_main to be main
    (e.g., with -Ddropout_main=main), then this
    function becomes th main function of the executable.
-   it calls dropout_grad_check_rand repeatedly to test
-   the implementation of VGG network.
+   it calls grad_check repeatedly to test
+   the implementation of backward of dropout.
 */
 int dropout_main(int argc, char ** argv) {
   cmdline_opt opt = parse_args(argc, argv);

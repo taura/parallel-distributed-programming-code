@@ -21,6 +21,23 @@
 #pragma once
 
 /**
+   @brief configuration data for MNIST
+*/
+struct MNISTCfg {
+  Convolution2DCfg conv1;       /**< conv1's cfg parameter */
+  ReluCfg relu1;                /**< relu1's cfg parameter */
+  Convolution2DCfg conv2;       /**< conv2's cfg parameter */
+  ReluCfg relu2;                /**< relu2's cfg parameter */
+  MaxPooling2DCfg max_pooling_2d; /**< max_pooling_2d's cfg parameter */
+  DropoutCfg dropout1;            /**< dropout1's cfg parameter */
+  LinearCfg fc1;                  /**< fc1's cfg parameter */
+  ReluCfg relu3;                  /**< relu3's cfg parameter */
+  DropoutCfg dropout2;            /**< dropout2's cfg parameter */
+  LinearCfg fc2;                  /**< fc2's cfg parameter */
+  NLLLogSoftmaxCfg nll_log_softmax; /**< nll_log_softmax's cfg parameter */
+};
+
+/**
    @brief MNIST network
    @param (maxB) maximum batch size it can accommodate (64)
    @param (C) number of channels in the input
@@ -28,23 +45,9 @@
    @param (W) image width
    @param (nC) number of classes
  */
-struct MNISTCfg {
-  Convolution2DCfg conv1;
-  ReluCfg relu1;
-  Convolution2DCfg conv2;
-  ReluCfg relu2;
-  MaxPooling2DCfg max_pooling_2d;
-  DropoutCfg dropout1;
-  LinearCfg fc1;
-  ReluCfg relu3;
-  DropoutCfg dropout2;
-  LinearCfg fc2;
-  NLLLogSoftmaxCfg nll_log_softmax;
-};
-
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t nC>
 struct MNIST {
-#if __NVCC__
+#if __CUDACC__
   MNIST<maxB,C,H,W,nC>* dev;    /**< device shadow */
 #endif
   cmdline_opt opt;              /**< command line option */
@@ -74,10 +77,11 @@ struct MNIST {
   NLLLogSoftmax<maxB,nC> nll_log_softmax;
   
   /**
-     @brief initialize 
+     @brief initialize everything
      @param (opt) command line options
      @param (lgr) logger
      @param (rg) random number generator for initializing weights
+     @param (cfg) configuration parameters
   */
   void init(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, MNISTCfg cfg) {
     this->opt = opt;
@@ -95,26 +99,15 @@ struct MNIST {
     nll_log_softmax.init(opt, lgr, rg, cfg.nll_log_softmax);
   }
   /**
-     @brief make a copy of this 
-     @details if this object has a device pointer, the copy will have
-     a device pointer too, but its contents are NOT copied
-  */
-  MNIST<maxB,C,H,W,nC>* copy() {
-    MNIST<maxB,C,H,W,nC>* c = new MNIST<maxB,C,H,W,nC>(*this);
-    c->make_dev();
-    return c;
-  }
-  /**
      @brief set the device pointer for this and all subobjects
      @param (dev) a device memory or null
-     @sa make_dev
-     @sa del_dev
+
      @details if dev is not null, dev fields of all subojects 
      point to the corresponding subjects in the device memory.
      if dev is not null, all dev fields become null.
   */
   void set_dev(MNIST<maxB,C,H,W,nC>* dev) {
-#if __NVCC__
+#if __CUDACC__
     this->dev = dev;
     x.set_dev(dev ? &dev->x : 0);
     t.set_dev(dev ? &dev->t : 0);
@@ -136,69 +129,15 @@ struct MNIST {
     (void)dev;
 #endif
   }
-  /**
-     @brief if the algorithm is a gpu algorithm, allocate a device shadow 
-     of this object and set dev field of this and all subobjects. otherwise
-     it sets all dev fields to null.
-     @sa set_dev
-     @sa del_dev
-  */
-  void make_dev() {
-#if __NVCC__
-    if (opt.gpu_algo) {
-      dev = (MNIST<maxB,C,H,W,nC>*)dev_malloc(sizeof(*this));
-    } else {
-      dev = 0;
-    }
-    set_dev(dev);
-#endif
-  }
-  /**
-     @brief if the algorithm is a gpu algorithm, dev field must not
-     be null and deallocate it.
-     @sa make_dev
-     @sa set_dev
-  */
-  void del_dev() {
-#if __NVCC__
-    if (opt.gpu_algo) {
-      assert(dev);
-      dev_free(dev);
-      dev = 0;
-    }
-#endif
-  }
-  /**
-     @brief if the algorithm is a gpu algorithm, dev field must
-     not be null and send the host data to the device memory
-  */
-  void to_dev() {
-#if __NVCC__
-    if (opt.gpu_algo) {
-      assert(dev);
-      ::to_dev(dev, this, sizeof(*this));
-    }
-#endif
-  }
-  /**
-     @brief if the algorithm is a gpu algorithm, dev field must
-     not be null and send the device data to the host memory
-  */
-  void to_host() {
-#if __NVCC__
-    if (opt.gpu_algo) {
-      assert(dev);
-      /* make sure dev field does not get broken */
-      MNIST<maxB,C,H,W,nC>* dev_ = dev;
-      ::to_host(this, dev_, sizeof(*this));
-      assert(dev_ == dev);
-    }
-#endif
-  }
+
   /**
      @brief update weights of all sublayers with gradients
      that must have been computed
-     @param (eta) the learning rate
+     @sa update_cpu_base
+     @sa update_cuda_base
+     @sa update_cuda_base_global
+     @sa update_cuda_base_device
+     @sa update_base
      @sa forward
      @sa backward
   */
@@ -209,9 +148,14 @@ struct MNIST {
     fc2.update();
   }
   /**
-     @brief calc the loss function of a mini-batch (x,t)
+     @brief forward phase of the network
      @param (x) input images
-     @param (t) true labels of images
+     @param (training) 1 if it is called in training not testing
+     @sa forward_base
+     @sa forward_cpu_base
+     @sa forward_cuda_base
+     @sa forward_cuda_base_global
+     @sa forward_cuda_base_device
      @sa backward
      @sa update
   */
@@ -222,10 +166,10 @@ struct MNIST {
     tensor<real,maxB,C2,H2,W2>& x4  = relu2.forward(x3, training);
     tensor<real,maxB,C2,H3,W3>& x5  = max_pooling_2d.forward(x4, training);
     tensor<real,maxB,C2,H3,W3>& x6  = dropout1.forward(x5, training);
-    tensor<real,maxB,nF,1,1>&   x7  = fc1.forward(x6, training);
-    tensor<real,maxB,nF,1,1>&   x8  = relu3.forward(x7, training);
-    tensor<real,maxB,nF,1,1>&   x9  = dropout2.forward(x8, training);
-    tensor<real,maxB,nC,1,1>&   x10 = fc2.forward(x9, training);
+    tensor<real,maxB,nF>&       x7  = fc1.forward(x6, training);
+    tensor<real,maxB,nF>&       x8  = relu3.forward(x7, training);
+    tensor<real,maxB,nF>&       x9  = dropout2.forward(x8, training);
+    tensor<real,maxB,nC>&       x10 = fc2.forward(x9, training);
     tensor<real,maxB>&          l   = nll_log_softmax.forward(x10, t, training);
     return l;
   }
@@ -237,14 +181,19 @@ struct MNIST {
      all sublayers that have weights. since this is the entire
      network, gy is actually a vector whose components are all 1.
      (loss = sum of losses of each data).
+     @sa backward_cpu_base
+     @sa backward_cuda_base
+     @sa backward_cuda_base_global
+     @sa backward_cuda_base_device
+     @sa backward_base
      @sa forward
      @sa update
   */
   tensor<real,maxB,C,H,W>& backward(tensor<real,maxB>& gl, tensor<idx_t,maxB>& t) {
-    tensor<real,maxB,nC,1,1>&   gx10 = nll_log_softmax.backward(gl, t);
-    tensor<real,maxB,nF,1,1>&   gx9  = fc2.backward(gx10);
-    tensor<real,maxB,nF,1,1>&   gx8  = dropout2.backward(gx9);
-    tensor<real,maxB,nF,1,1>&   gx7  = relu3.backward(gx8);
+    tensor<real,maxB,nC>&       gx10 = nll_log_softmax.backward(gl, t);
+    tensor<real,maxB,nF>&       gx9  = fc2.backward(gx10);
+    tensor<real,maxB,nF>&       gx8  = dropout2.backward(gx9);
+    tensor<real,maxB,nF>&       gx7  = relu3.backward(gx8);
     tensor<real,maxB,C2,H3,W3>& gx6  = fc1.backward(gx7);
     tensor<real,maxB,C2,H3,W3>& gx5  = dropout1.backward(gx6);
     tensor<real,maxB,C2,H2,W2>& gx4  = max_pooling_2d.backward(gx5);
@@ -255,18 +204,19 @@ struct MNIST {
     return gx;
   }
   /**
-     @brief log the result of prediction
+     @brief write the predicted class of all samples of the batch into pred
+     @param (pred) the vector to which the predicted classes are written to
   */
   void predict(tensor<idx_t,maxB>& pred) {
-    tensor<real,maxB,nC,1,1>& y = nll_log_softmax.y;
-    y.to_host();
+    tensor<real,maxB,nC>& y = nll_log_softmax.y;
+    to_host(&y, opt.cuda_algo);
     const idx_t B = idxs.n0;
     pred.set_n0(B);
     for (idx_t s = 0; s < B; s++) {
       /* get the prediction from logsoftmax */
       idx_t pred_class = 0;
       for (idx_t c = 0; c < nC; c++) {
-        if (y(s,pred_class,0,0) < y(s,c,0,0)) {
+        if (y(s,pred_class) < y(s,c)) {
           pred_class = c;
         }
       }
@@ -274,7 +224,13 @@ struct MNIST {
     }
   }
   /**
-     @brief log the result of prediction
+     @brief write the predicted classes into the log and returns the number
+     of correctly predicted samples
+     @param (start_offset) the sequence number of the first sample of 
+     the batch
+     @param (pred) the vector of predicted classes for each sample
+     the batch
+     @param (t) the vector of true labels for each sample
   */
   idx_t log_prediction(idx_t start_offset,
                        tensor<idx_t,maxB>& pred, tensor<idx_t,maxB>& t) {
@@ -293,14 +249,13 @@ struct MNIST {
      @brief perform an entire iteration (= forward; backward; update)
      @param (x) input images (a mini batch)
      @param (t) true labels
-     @param (eta) learning rate
      @sa forward
      @sa backward
      @sa update
      @details do everything on a mini-batch. forward calculates the 
      loss wrt x and t; backward calculates the gradient 
      of loss wrt x and weights; update updates weights with the
-     gradients and the learning rate.
+     gradients
   */
   real forward_backward_update(tensor<real,maxB,C,H,W>& x, tensor<idx_t,maxB>& t) {
     const idx_t B = x.n0;
@@ -308,13 +263,13 @@ struct MNIST {
     tensor<real,maxB>& L = forward(x, t, 1);
     /* a vector (1,1,1,...) to make the single loss value from loss of each sample */
     gy.init_const(B, 1.0);
-    gy.to_dev();
+    to_dev(&gy, opt.cuda_algo);
     /* backward (set weights of all sublayers) */
     backward(gy, t);
     /* update */
     update();
     /* get the loss of each sample back to host if we are working on GPU */
-    L.to_host();
+    to_host(&L, opt.cuda_algo);
     double Lsum = gy.dot(L);
     return Lsum;
   }
@@ -325,6 +280,7 @@ struct MNIST {
      @param (rg) random number generator
      @param (p) minimum value of a component
      @param (q) maximum value of a component
+     @details only used for checking gradient computation
   */
   void rand_grad(rnd_gen_t& rg, real p, real q) {
     conv1.rand_grad(rg, p, q);
@@ -333,9 +289,9 @@ struct MNIST {
     fc2.rand_grad(rg, p, q);
   }
   /**
-     @brief set all gradients to gradients of another object
+     @brief set all gradients to gradients of another object o
      @param (o) the object from which gradients get copied
-     @details transfer gradients of o to this object
+     @details only used for checking gradient computation
   */
   void copy_grad(MNIST<maxB,C,H,W,nC>& o) {
     conv1.copy_grad(o.conv1);
@@ -344,8 +300,9 @@ struct MNIST {
     fc2.copy_grad(o.fc2);
   }
   /**
-     @brief perform w += alpha * gw 
-   */
+     @brief w += alpha * gw
+     @param (alpha) alpha of w += alpha * gw
+  */
   void add_grad(real alpha) {
     conv1.add_grad(alpha);
     conv2.add_grad(alpha);
@@ -354,9 +311,9 @@ struct MNIST {
   }
   /**
      @brief take the inner product of gradients
-     @param (b) the object to take the inner product with
-     @details take the inner product of this object's 
-     gradients and b's gradients
+     @param (o) the object to take the inner product with
+     @details take the inner product of this object's gradient and b's
+     gradient. only used for checking gradient computation
   */
   double grad_dot_grad(MNIST<maxB,C,H,W,nC>& b) {
     MNIST<maxB,C,H,W,nC>& a = *this;
@@ -378,8 +335,8 @@ struct MNIST {
    a main C++ file and define mnist_main to be main
    (e.g., with -Dmnist_main=main), then this
    function becomes th main function of the executable.
-   it calls mnist_grad_check_rand repeatedly to test
-   the implementation of MNIST network.
+   it calls grad_check repeatedly to test
+   the implementation of backward of mnist.
 */
 int mnist_main(int argc, char ** argv) {
   cmdline_opt opt = parse_args(argc, argv);
