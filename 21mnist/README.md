@@ -64,6 +64,7 @@ Compile:
 * the former is made by `clang++` and the latter by `nvcc`
 
 ```
+$ cp compile.mk Makefile # first-time only
 $ make
 mkdir -p exe/dir
 clang++ -O3 -DMAX_BATCH_SIZE=64 -DARRAY_INDEX_CHECK=0 -Dreal_type=float -Wall -Wextra -Wno-strict-overflow   -o exe/mnist_cpu_base mnist.cc
