@@ -121,6 +121,34 @@ $ srun -p gpu -t 0:20:00 --gres gpu:1 ./exe/mnist_cuda_base [options]
 Runtime Options
 =============
 
+Help (`-v`, `--verbose`)
+--------------------------
+
+```
+$ ./exe/mnist_cpu_base --help
+./exe/mnist_cpu_base: option '--help' requires an argument
+usage:
+
+./exe/mnist_cpu_base [options]
+
+ -d,--data-dir D : read data from D [data]
+ -m,--epochs N : run N epochs [14]
+ -b,--batch-size N : set batch size to N [64]
+ -a,--algo ALGORITHM : set the algorithm (implementation) used [cpu_base]
+ -v,--verbose L : set verbosity level to L [1]
+ -l,--lr ETA : set learning rate to ETA [1.000000]
+ --train-data-size N : set training data size to N [-1]
+ --test-data-size N : set test data size to N [-1]
+ --log-interval N : show progress every N batches [10]
+ --dropout-seed-1 S : set seed for dropout layer 1 to S [56789012345234]
+ --dropout-seed-2 S : set seed for dropout layer 2 to S [67890123452345]
+ --weight-seed S : set seed for initial weights to S [45678901234523]
+ --grad-dbg 0/1 : debug gradient computation [0]
+ --log FILE : write log to FILE [mnist.log]
+ -h,--help
+```
+
+
 Verbosity (`-v`, `--verbose`)
 --------------------------
 
@@ -213,7 +241,7 @@ $ ./exe/mnist_cpu_base -m 1 --train-data-size 1 --test-data-size 1
 2551752614: train loss = 1.770801783
 2551766476: training ends
 ```
-dropout (`--dropout-seed1 X` and `--dropout-seed2 X`)
+dropout (`--dropout-seed-1 X` and `--dropout-seed-2 X`)
 --------------------------
 
 * There are two _dropout_ in the network
