@@ -67,7 +67,7 @@ git clone git@github.com:taura/parallel-distributed.git
 git clone https://github.com/taura/parallel-distributed.git
 ```
 
-<font color="red">Remark</font> _Please anticipate this repository (especially, this README.md file) will get updated later to give you more info and instructions later.  Source code changes will be minor (hopefully none), but please still prepare for incorporating future changes by `git pull`.  Git hopefully merges my changes and yours, but I recommend you to make your changes easy to identify (e.g., by enslosing them by `#ifdef ... #endif`) in case you have to merge changes manually.  I will provide more instruction about how you are supposed to modify the code and submit it later._
+**Remarks:** _Please anticipate this repository (especially, this `README.md` file) will get updated later to give you more info and instructions later.  Source code changes will be minor (hopefully none), but please still prepare for incorporating future changes by `git pull`.  Git hopefully merges my changes and yours, but I recommend you to make your changes easy to identify (e.g., by enclosing them by `#ifdef ... #endif`) in case you have to merge changes manually.  I will provide more instruction about how you are supposed to modify the code and submit it later._
 
 
 Dataset: MNIST
