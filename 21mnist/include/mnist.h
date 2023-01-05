@@ -237,7 +237,7 @@ struct MNIST {
     const idx_t B = idxs.n0;
     idx_t correct = 0;
     for (idx_t s = 0; s < B; s++) {
-      lgr->log(2, "sample %d image %d pred %d truth %d",
+      lgr->log(3, "sample %d image %d pred %d truth %d",
                start_offset + s, idxs(s), pred(s), t(s));
       if (pred(s) == t(s)) {
         correct++;

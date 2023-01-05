@@ -18,7 +18,10 @@ static void train(MNIST<maxB,C,H,W,nC> * mnist,
                   logger& lgr, int cuda_algo, long epoch, long log_interval) {
   data.rewind();
   long n_samples = 0;
+  lgr.log(2, "Train Epoch %ld starts", epoch);
   for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B, cuda_algo); batch_idx++) {
+    lgr.log(2, "Train Epoch %ld batch %ld (samples %ld - %ld) starts",
+            epoch, batch_idx, n_samples, n_samples + mnist->x.n0);
     real Lsum = mnist->forward_backward_update(mnist->x, mnist->t);
     real L = Lsum / mnist->idxs.n0;
     mnist->predict(mnist->pred);
@@ -28,8 +31,11 @@ static void train(MNIST<maxB,C,H,W,nC> * mnist,
               epoch, n_samples, data.n_data,
               100. * n_samples / data.n_data, L);
     }
-    n_samples += mnist->idxs.n0;
+    lgr.log(2, "Train Epoch %ld batch %ld (samples %ld - %ld) ends",
+            epoch, batch_idx, n_samples, n_samples + mnist->x.n0);
+    n_samples += mnist->x.n0;
   }
+  lgr.log(2, "Train Epoch %ld ends", epoch);
 }
 
 /**
@@ -40,17 +46,22 @@ static void train(MNIST<maxB,C,H,W,nC> * mnist,
 template<idx_t maxB,idx_t C,idx_t H,idx_t W,idx_t nC>
 static void test(MNIST<maxB,C,H,W,nC> * mnist,
                  mnist_dataset<maxB,C,H,W>& data, idx_t B,
-                 logger& lgr, int cuda_algo) {
+                 logger& lgr, int cuda_algo, long epoch) {
   real Lsum = 0.0;
   long n_samples = 0;
   long n_correct = 0;
   data.rewind();
-  while (data.get_data(mnist->x, mnist->t, mnist->idxs, B, cuda_algo)) {
+  lgr.log(2, "Test Epoch %ld starts", epoch);
+  for (long batch_idx = 0; data.get_data(mnist->x, mnist->t, mnist->idxs, B, cuda_algo); batch_idx++) {
+    lgr.log(2, "Test Epoch %ld batch %ld (samples %ld - %ld) starts",
+            epoch, batch_idx, n_samples, n_samples + mnist->x.n0);
     tensor<real,maxB>& y = mnist->forward(mnist->x, mnist->t, 0);
     to_host(&y, cuda_algo);
     mnist->predict(mnist->pred);
     Lsum += y.sum();
-    n_samples += y.n0;
+    lgr.log(2, "Test Epoch %ld batch %ld (samples %ld - %ld) ends",
+            epoch, batch_idx, n_samples, n_samples + mnist->x.n0);
+    n_samples += mnist->x.n0;
     n_correct += mnist->log_prediction(n_samples, mnist->pred, mnist->t);
   }
   assert(n_samples == data.n_data);
@@ -58,6 +69,7 @@ static void test(MNIST<maxB,C,H,W,nC> * mnist,
     lgr.log(1, "Test set: Average loss: %.4f, Accuracy: %ld/%ld (%.0f%%)",
             Lsum / n_samples, n_correct, n_samples, (100. * n_correct) / n_samples);
   }
+  lgr.log(2, "Test Epoch %ld ends", epoch);
 }
 
 /**
@@ -119,7 +131,7 @@ int main(int argc, char ** argv) {
   lgr.log(1, "training starts");
   for (long i = 0; i < opt.epochs; i++) {
     train(mnist, train_data, B, lgr, opt.cuda_algo, i + 1, opt.log_interval);
-    test(mnist, test_data, B, lgr, opt.cuda_algo);
+    test(mnist, test_data, B, lgr, opt.cuda_algo, i + 1);
   }
   lgr.log(1, "training ends");
   lgr.end_log();

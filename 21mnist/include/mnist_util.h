@@ -693,19 +693,19 @@ struct logger {
      @brief log command line options to the log file for the record
    */
   int log_opt() {
-    log(3, "verbose=%d", opt.verbose);
-    log(3, "data-dir=%s", opt.data_dir);
-    log(3, "lr=%f", opt.lr);
-    log(3, "epochs=%ld", opt.epochs);
-    log(3, "batch-size=%d", opt.batch_size);
-    log(3, "train-data-size=%d", opt.train_data_size);
-    log(3, "test-data-size=%ld", opt.test_data_size);
-    log(3, "weight-seed=%ld", opt.weight_seed);
-    log(3, "dropout-seed-1=%ld", opt.dropout_seed_1);
-    log(3, "dropout-seed-2=%ld", opt.dropout_seed_2);
-    log(3, "grad-dbg=%d", opt.grad_dbg);
-    log(3, "algo=%d", opt.algo);
-    log(3, "log=%s", opt.log);
+    log(2, "verbose=%d", opt.verbose);
+    log(2, "data-dir=%s", opt.data_dir);
+    log(2, "lr=%f", opt.lr);
+    log(2, "epochs=%ld", opt.epochs);
+    log(2, "batch-size=%d", opt.batch_size);
+    log(2, "train-data-size=%d", opt.train_data_size);
+    log(2, "test-data-size=%ld", opt.test_data_size);
+    log(2, "weight-seed=%ld", opt.weight_seed);
+    log(2, "dropout-seed-1=%ld", opt.dropout_seed_1);
+    log(2, "dropout-seed-2=%ld", opt.dropout_seed_2);
+    log(2, "grad-dbg=%d", opt.grad_dbg);
+    log(2, "algo=%d", opt.algo);
+    log(2, "log=%s", opt.log);
     return 1;
   }
   /**
@@ -715,7 +715,7 @@ struct logger {
     char name[HOST_NAME_MAX+1];
     name[0] = 0;
     gethostname(name, sizeof(name));
-    log(3, "host=%s", name);
+    log(2, "host=%s", name);
     return 1;
   }
   /**
@@ -724,9 +724,9 @@ struct logger {
   int log_env(const char * var) {
     char * s = getenv(var);
     if (s) {
-      log(3, "%s=%s", var, s);
+      log(2, "%s=%s", var, s);
     } else {
-      log(3, "%s undefined", var);
+      log(2, "%s undefined", var);
     }
     return 1;
   }
@@ -767,13 +767,13 @@ struct logger {
      @brief log the start of a function (f) 
    */
   void log_start_fun_(const char * f) {
-    log(2, "%s: starts", f);
+    log(4, "%s: starts", f);
   }
   /**
      @brief log the end of a function (f) 
    */
   void log_end_fun_(const char * f, tsc_t t0, tsc_t t1) {
-    log(2, "%s: ends. took %ld nsec", f, t1.ns - t0.ns);
+    log(4, "%s: ends. took %ld nsec", f, t1.ns - t0.ns);
   }
 };
 

@@ -2,17 +2,19 @@ Overview
 =============
 
 * This program trains a neural network for hand-written character recognition
-* It is a very basic implementation without vectorization or parallelization
+* I provide a very basic implementation without vectorization or parallelization
   * CPU and CUDA version are provided
   * CPU version does not use SIMD or threads
   * CUDA version uses only a single(!) CUDA thread
 
-Neural Network Model
+The Neural Network Model
 ==================
 
-* The model is a translation of mnist model in pytorch examples https://github.com/pytorch/examples/tree/main/mnist
-* The original pytorch model is written in python but the baseline code provided herein is purely C++
-* You may want to run the orignal pytorch implementation as follows, just to get a sense of how the learning should progress
+* The model is a C++ translation of `mnist` model in pytorch examples https://github.com/pytorch/examples/tree/main/mnist
+* The original pytorch model is written in python but the baseline code provided herein is purely C++ that does not rely on any external library
+  * mnist is actually the name of the database, not a neural network model, so the name `mnist` is a bit of misnomer, but this is what pytorch examples name it and we will use the same name
+* If you want, you may run the orignal pytorch implementation as follows, just to get a sense of how the learning should progress
+* My C++ translation tries to faithfully replicate what the pytorch implementation does, so you can compare your implementation with the pytorch implementation
 ```
 $ git clone git@github.com:pytorch/examples.git 
 # if the above does not work, try this
@@ -48,23 +50,43 @@ Train Epoch: 1 [3200/60000 (5%)]	Loss: 0.444732
   ...
 ```
 
+Download:
+==================
+
+* Download my baseline C++ implementation from the github
+
+* If you have registered your SSH key to the github, 
+
+```
+git clone git@github.com:taura/parallel-distributed.git
+```
+
+* Or,
+
+```
+git clone https://github.com/taura/parallel-distributed.git
+```
+
 Dataset: MNIST
 ==================
 
-* The dataset is in `data` directory
-* If you execute the above command to run the pytorch model, the same data should have been downloaded into `examples/data/MNIST/raw`; the contents of the `raw` directory and `data` directory should be identical
+* The dataset is in `data/` directory
+* Make sure you have the following files
+  * `data/train-images-idx3-ubyte` : training images
+  * `data/train-labels-idx1-ubyte` : training labels
+  * `data/t10k-images-idx3-ubyte` : test images
+  * `data/t10k-labels-idx1-ubyte` : test labels
+* If you executed the pytorch implementation, the same data should have been downloaded into `examples/data/MNIST/raw/`; the contents of the `raw/` directory and `data/` directory should be identical
 
 Compile: 
 ==================
 
-* `compile.mk` is a makefile template you will base your work on 
-* copy it to `Makefile` and run `make`
-* it builds executable(s) into `exe` directory
-* in the default setting, it will build `exe/mnist_cpu_base` and `exe/mnist_cuda_base`
-* the former is made by `clang++` and the latter by `nvcc`
+* `make` in this folder (`21mnist`) builds executable(s) into `exe` directory
+* in the default setting, it will build two executables
+  * `exe/mnist_cpu_base`, made by `clang++` 
+  * `exe/mnist_cuda_base`, made by `nvcc`
 
 ```
-$ cp compile.mk Makefile # first-time only
 $ make
 mkdir -p exe/dir
 clang++ -O3 -DMAX_BATCH_SIZE=64 -DARRAY_INDEX_CHECK=0 -Dreal_type=float -Wall -Wextra -Wno-strict-overflow   -o exe/mnist_cpu_base mnist.cc
@@ -82,11 +104,6 @@ rm -rf exe
 Run: 
 ==================
 
-* Make sure you have the following files
-  * `data/train-images-idx3-ubyte` : training images
-  * `data/train-labels-idx1-ubyte` : training labels
-  * `data/t10k-images-idx3-ubyte` : test images
-  * `data/t10k-labels-idx1-ubyte` : test labels
 
 CPU:
 ------------------
@@ -118,10 +135,21 @@ $ ./exe/mnist_cuda_base [options]
 $ srun -p gpu -t 0:20:00 --gres gpu:1 ./exe/mnist_cuda_base [options]
 ```
 
+Default Behavior:
+------------------
+
+* The default behavior below is the same as the original pytorch implementation
+* It reads data from files in the `./data` directory in the current working directory (= the directory you executed the command from) 
+* It runs 14 epochs (= scans the entire training dataset (60000 samples) 14 times = uses 60000 x 14 = 840000 samples in total)
+* The mini-batch size (the number of samples used at a time to update weights) is 64
+* Every 10 mini-batches (= 640 samples), it reports the loss of a mini-batch
+* Between epochs, it scans the entire test dataset (10000 samples) once and reports the accuracy
+
+
 Runtime Options
 =============
 
-Help (`-v`, `--verbose`)
+Help (`-h`,`--help` or any invalid option, for that matter)
 --------------------------
 
 ```
@@ -152,35 +180,147 @@ usage:
 Verbosity (`-v`, `--verbose`)
 --------------------------
 
-* Give `-v 2` option and you will see the progress more frequently.  You can also know which functions are taking much time.
+* Give `-v 2` option shows various settings at command line and environment variables
 
 ```
 $ ./exe/mnist_cpu_base -v 2
-57492: open a log Thu Jan  5 01:18:44 2023
-116634: model building starts
-34305813: model building ends
-34314251: loading data from data
-176462711: use 60000 data items out of 60000
-177693306: loading data from data
-201820701: use 10000 data items out of 10000
-202036708: training starts
-202086438: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 1, 28, 28, 3, 32>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 1, H = 28, W = 28, K = 3, OC = 32]: starts
-205420643: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 1, 28, 28, 3, 32>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 1, H = 28, W = 28, K = 3, OC = 32]: ends. took 3329884 nsec
-205426445: tensor<real, N0, N1, N2, N3> &Relu<64, 32, 26, 26>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 32, N2 = 26, N3 = 26]: starts
-206214594: tensor<real, N0, N1, N2, N3> &Relu<64, 32, 26, 26>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 32, N2 = 26, N3 = 26]: ends. took 786295 nsec
-206254235: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 32, 26, 26, 3, 64>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 32, H = 26, W = 26, K = 3, OC = 64]: starts
-707303715: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 32, 26, 26, 3, 64>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 32, H = 26, W = 26, K = 3, OC = 64]: ends. took 501034856 nsec
-707320868: tensor<real, N0, N1, N2, N3> &Relu<64, 64, 24, 24>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 24, N3 = 24]: starts
-709169505: tensor<real, N0, N1, N2, N3> &Relu<64, 64, 24, 24>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 24, N3 = 24]: ends. took 1846468 nsec
- ...
+22990: open a log Thu Jan  5 14:59:00 2023
+31146: verbose=2
+32073: data-dir=data
+32900: lr=1.000000
+35868: epochs=14
+36567: batch-size=64
+37239: train-data-size=-1
+37975: test-data-size=4294967295
+38717: weight-seed=45678901234523
+39419: dropout-seed-1=56789012345234
+40137: dropout-seed-2=67890123452345
+40753: grad-dbg=0
+41437: algo=0
+42067: log=mnist.log
+59566: host=fv
+60731: USER=tau
+61502: PWD=/home/tau/public_html/lecture/parallel_distributed/parallel-distributed/21mnist
+62530: SLURM_SUBMIT_DIR undefined
+63272: SLURM_SUBMIT_HOST undefined
+   ...
+91256: SLURM_JOB_GID undefined
+91946: SLURMD_NODENAME undefined
+93087: model building starts
+27729075: model building ends
+27746412: loading data from data
+172280759: use 60000 data items out of 60000
+173330293: loading data from data
+197724941: use 10000 data items out of 10000
+197876526: training starts
+2320860096: Train Epoch: 1 [0/60000 (0%)]	Loss: 2.316252
+   ...
 ```
 
-* `-v 3` shows the result of every sample
+* Give `-v 3` option shows the result (predicted and true labels) of all samples
+
+```
+$ ./exe/mnist_cpu_base -v 3
+28172: open a log Thu Jan  5 15:01:03 2023
+36131: verbose=3
+37242: data-dir=data
+37990: lr=1.000000
+41821: epochs=14
+42458: batch-size=64
+43099: train-data-size=-1
+43813: test-data-size=4294967295
+44533: weight-seed=45678901234523
+45226: dropout-seed-1=56789012345234
+45874: dropout-seed-2=67890123452345
+46571: grad-dbg=0
+47277: algo=0
+47895: log=mnist.log
+62483: host=fv
+63864: USER=tau
+64635: PWD=/home/tau/public_html/lecture/parallel_distributed/parallel-distributed/21mnist
+65792: SLURM_SUBMIT_DIR undefined
+66510: SLURM_SUBMIT_HOST undefined
+
+    ...
+    
+80714: SLURM_JOB_GID undefined
+81319: SLURMD_NODENAME undefined
+81926: model building starts
+30049565: model building ends
+30068902: loading data from data
+182503763: use 60000 data items out of 60000
+183485130: loading data from data
+209477720: use 10000 data items out of 10000
+209628269: training starts
+2517480573: sample 0 image 0 pred 6 truth 5
+2517491709: sample 1 image 1 pred 5 truth 0
+2517493022: sample 2 image 2 pred 6 truth 4
+2517494213: sample 3 image 3 pred 5 truth 1
+
+    ...
+    
+2517580873: sample 61 image 61 pred 6 truth 4
+2517582222: sample 62 image 62 pred 4 truth 6
+2517583434: sample 63 image 63 pred 4 truth 0
+2517584718: Train Epoch: 1 [0/60000 (0%)]	Loss: 2.316252
+4837309739: sample 64 image 64 pred 4 truth 4
+4837324018: sample 65 image 65 pred 4 truth 5
+4837325090: sample 66 image 66 pred 1 truth 6
+
+    ...
+```
+
+* `-v 4` shows all layers called and their elapsed time
+
+```
+$ ./exe/mnist_cpu_base -v 4
+26295: open a log Thu Jan  5 15:02:43 2023
+34947: verbose=4
+35908: data-dir=data
+36734: lr=1.000000
+39803: epochs=14
+40504: batch-size=64
+41237: train-data-size=-1
+41965: test-data-size=4294967295
+42730: weight-seed=45678901234523
+43508: dropout-seed-1=56789012345234
+45434: dropout-seed-2=67890123452345
+46206: grad-dbg=0
+46893: algo=0
+47542: log=mnist.log
+49705: host=fv
+51243: USER=tau
+53524: PWD=/home/tau/public_html/lecture/parallel_distributed/parallel-distributed/21mnist
+60221: SLURM_SUBMIT_DIR undefined
+61242: SLURM_SUBMIT_HOST undefined
+
+   ...
+
+82311: SLURM_JOB_GID undefined
+83001: SLURMD_NODENAME undefined
+84134: model building starts
+28704401: model building ends
+28714696: loading data from data
+177709188: use 60000 data items out of 60000
+178715128: loading data from data
+203401720: use 10000 data items out of 10000
+203663521: training starts
+203697529: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 1, 28, 28, 3, 32>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 1, H = 28, W = 28, K = 3, OC = 32]: starts
+208063761: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 1, 28, 28, 3, 32>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 1, H = 28, W = 28, K = 3, OC = 32]: ends. took 4363831 nsec
+208080391: tensor<real, N0, N1, N2, N3> &Relu<64, 32, 26, 26>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 32, N2 = 26, N3 = 26]: starts
+209284742: tensor<real, N0, N1, N2, N3> &Relu<64, 32, 26, 26>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 32, N2 = 26, N3 = 26]: ends. took 1202192 nsec
+209291784: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 32, 26, 26, 3, 64>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 32, H = 26, W = 26, K = 3, OC = 64]: starts
+769120455: tensor<real, maxB, OC, H - K + 1, W - K + 1> &Convolution2D<64, 32, 26, 26, 3, 64>::forward(tensor<real, maxB, IC, H, W> &, int) [maxB = 64, IC = 32, H = 26, W = 26, K = 3, OC = 64]: ends. took 559827015 nsec
+769135387: tensor<real, N0, N1, N2, N3> &Relu<64, 64, 24, 24>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 24, N3 = 24]: starts
+771112988: tensor<real, N0, N1, N2, N3> &Relu<64, 64, 24, 24>::forward(tensor<real, N0, N1, N2, N3> &, int) [N0 = 64, N1 = 64, N2 = 24, N3 = 24]: ends. took 1975174 nsec
+
+  ...
+```
 
 Execution log (`--log`)
 --------------------------
 
-* Detailed execution records are saved into a file (default: `mnist.log`).  The file includes everything you will see with `-v 3` and more.  You can specify the filename with --log option.  When you execute many instances concurrently, make sure you specify a unique log file to each process.
+* Detailed execution records are saved into a file (default: `mnist.log`).  The file includes everything you will see with `-v 4`.  You can specify the filename with --log option.  When you execute many instances concurrently, make sure you specify a unique log file to each process.
 
 Batch size (`-b`, `--batch-size`)
 --------------------------
@@ -198,8 +338,8 @@ $ ./exe/mnist_cpu_base -b 1
 $ ... (edit the Makefile at the line `flags += -DMAX_BATCH_SIZE=xxx`) ...
 $ make
 mkdir -p exe/dir
-clang++ -O3 -DMAX_BATCH_SIZE=128 -DARRAY_INDEX_CHECK=0 -Dreal_type=float -Wall -Wextra -Wno-strict-overflow   -o exe/mnist_cpu_base mnist.cc     
-nvcc -O3 -DMAX_BATCH_SIZE=128 -DARRAY_INDEX_CHECK=0 -Dreal_type=float -x cu --gpu-code sm_80 --gpu-architecture compute_80   -o exe/mnist_cuda_base mnist.cc     
+clang++ -O3 -DMAX_BATCH_SIZE=128 -DARRAY_INDEX_CHECK=0 -Dreal_type=float -Wall -Wextra -Wno-strict-overflow   -o exe/mnist_cpu_base mnist.cc
+nvcc -O3 -DMAX_BATCH_SIZE=128 -DARRAY_INDEX_CHECK=0 -Dreal_type=float -x cu --gpu-code sm_80 --gpu-architecture compute_80   -o exe/mnist_cuda_base mnist.cc
 ```
 
 * Note that `MAX_BATCH_SIZE` affects the memory footprint.  An instance of MNIST object holds all intermediate data within the instance and its size is roughly proportional to `MAX_BATCH_SIZE`.  Note that specifying a small batch size at runtime (via `--batch-size`) does not change the size of an instance.
@@ -241,7 +381,15 @@ $ ./exe/mnist_cpu_base -m 1 --train-data-size 1 --test-data-size 1
 2551752614: train loss = 1.770801783
 2551766476: training ends
 ```
-dropout (`--dropout-seed-1 X` and `--dropout-seed-2 X`)
+
+Initialization seed (`--weight-seed S`)
+--------------------------
+
+* It seeds a random number generator so the model will start from different initial weights
+* Giving the same seed guarantees the network starts from the same initial weights
+* If not specified, it uses a fixed default value
+
+Dropout seed (`--dropout-seed-1 X` and `--dropout-seed-2 X`)
 --------------------------
 
 * There are two _dropout_ in the network
@@ -255,6 +403,30 @@ dropout (`--dropout-seed-1 X` and `--dropout-seed-2 X`)
 * If the argument to `--dropout-seed-1` is not zero, the first dropout layer drops (zeros) the output with probability 0.25; if the argument to `--dropout-seed-2` is not zero, the second dropout layer drops (zeros) the output with probability 0.5
 
 * Non-zero arguments to `--dropout-seed-1` or `--dropout-seed-2` seed the random number generator that chooses which outputs are zeroed in the respective dropout layers
+
+* Again, default seeds are fixed
+
+Remarks about seeding random number generators
+--------------------------
+
+There are a few places in which the program uses random numbers, namely,
+
+ * when it initializes weight parameters (`--weight-seed`),
+ * when it chooses which cells to dropout in a dropout layer (`--dropout-seed-1` and `--dropout-seed-2`)
+ 
+_ALL COMPONENTS BEHAVE DETERMINISTICALLY._  That is, if you repeat executions with the same configuration repeatedly, it starts from the same weight parameters, uses the same training data in exactly the same order and drops out the same cells.
+
+Unless your algorithm behaves undeterministically, the results should be always the same when you repeat the same command line.  This should help you debug your code.
+
+You can change these things by giving different seeds for each of these random number generators.  Specifically,
+
+ * `--weight-seed` changes initial weight parameters
+ * `--dropout-seed-1` and `--dropout-seed-2` change which cells are dropped out
+
+Simply give an arbitrary number to any of them to make sure your algorithm are not sensitive to initial weights or particular dropout decisions
+
+A general remark: when using a pseudo random number for a randomized algorithm such as this one, _ALWAYS_ give it a seed you chose and make it behave deterministically given the same seed.  This is a tremendous help for debugging.  After you have done initial debugging, you can test your algorithm across different sequences of random numbers just by giving different seeds.  Note that virtually all pseudo random number generators are deterministic after a seed is given.  A random number generator without any seed generates different sequences every time simply because they use a different seed each time; when you do not seed it, it simply takes a value from an external source (e.g., the current time) and uses it as a seed.  Nothing else is different.  In this sense, there is almost no point in not giving a seed of your choice (give the current time as a seed if you want to purposefully make it behave differently each time).  Without giving a seed, your algorithm can NEVER behave deterministically, which is a nightmare for debugging and the nightmare is nothing but unnecessary.
+
 
 Data directory (`-d DIR`, `--data-dir DIR`)
 --------------------------
@@ -277,27 +449,6 @@ Learning rate (`--lr R`)
 
 * In practice, learning rate is an important hyper parameter to affect the stability or speed of convergence, but in this exercise, you do not have to play with it as the main theme is to optimize performance of the computation
 
-Change seeds
---------------------------
-
-There are a few places in which the program uses random numbers, namely,
-
- * when it initializes weight parameters,
- * when it chooses which cells to dropout in a dropout layer
- 
-_ALL COMPONENTS BEHAVE DETERMINISTICALLY._  That is, if you repeat executions with the same configuration repeatedly, it starts from the same weight parameters, uses the same data for validation and training, picks up the same training data and drops out the same cells.
-
-Unless your algorithm behave undeterministically, the results should be always the same.  This should help you debug your code.
-
-You can change these things by giving different seeds for each of these random number generators.  Specifically,
-
- * `--weight-seed` changes initial weight parameters
- * `--dropout-seed-1` and `--dropout-seed-2` change which cells are dropped out
-
-Simply give an arbitrary number to any of them to make sure your algorithm is not sensitive to any of them.
-
-A general remark: when using a pseudo random number for a randomized algorithm such as this one, _ALWAYS_ give it a seed you chose and make it behave deterministically given the same seed.  This is a tremendous help for debugging.  After you have done initial debugging, you can test your algorithm across different sequences of random numbers just by giving different seeds.  Note that virtually all pseudo random number generators are deterministic after a seed is given.  A random number generator without any seed generates different sequences every time simply because they use a different seed each time; when you do not seed it, it simply takes a value from an external source (e.g., the current time) and uses it as a seed.  Nothing else is different.  In this sense, there is almost no point in not giving a seed of your choice (give the current time as a seed if you want to purposefully make it behave differently each time).  Without giving a seed, your algorithm can NEVER behave deterministically, which is a nightmare for debugging and the nightmare is nothing but unnecessary.
-
 GPU execution (`-a gpu_base`)
 --------------------------
 
@@ -314,20 +465,20 @@ $ exe/mnist_cuda_base -a gpu_base # (5) baseline code on GPU
 $ exe/mnist_cuda_base             # (6) same as (5)
 ```
 
-* `nvc++` and `g++` versions behave the same as `clang++` version
-
-* Note that baseline code is neither vectorized nor parallelized.  In particular, it uses only a single CUDA thread on GPU (!)
+* Note that baseline code is neither vectorized nor parallelized
+* In particular, it uses only a single CUDA thread on GPU (!)
 
 Algorithm choice (`-a`)
 --------------------------
 
-* The `-a` option described above is an option that chooses an algorithm from available repertories.  In the given code, only baseline algorithms for GPU and CPU are implemented.  You will add your implementation as another available choice here.
+* The `-a` option described above is an option that chooses an algorithm from available repertories.  In the given code, only baseline algorithms for GPU and CPU are implemented.  
+* You can (and should) add your implementation as another available choice here.
 
 
 Controlled experiments
 --------------------------
 
-* After you did a bit of work, you want to make sure you got it done right.  Especially, you may be afraid that you broke a function.  To make sure the network is still functioning, you might want to do a small and controlled experiment.
+* After you roll your version, you want to make sure you got it done right.  Especially, you may be afraid that you broke a function.  To make sure the network is still functioning, you will want to start with a small and controlled experiment.
 
 * You probably want to start with something like this.
 
@@ -335,9 +486,9 @@ Controlled experiments
 $ ./exe/mnist_cpu_base -a YOUR_ALGORITHM --train-data-size 1 --test-data-size 0
 ```
 
-* This uses only a single training sample and no test data
+* This uses only a single training sample and no test data at all
 * So it keeps taking a single data and updating the weight for that data
-* If the displayed `Loss:` value does not quickly decrease (from somewhere around 2.3), something is fundamentally broken
+* If the displayed `Loss:` value does not quickly decrease (from somewhere around 2.3 to almost zero after a few iterations), something will be fundamentally broken
 * Here is a sample output
 
 ```
@@ -371,7 +522,7 @@ $ ./exe/mnist_cpu_base --train-data-size 1 --test-data-size 0
 * If it succeeds with a single training sample, try it with a larger but still a small number of samples next (e.g., 16) and gradually increase the number of samples
 
 
-How you interpret the loss?
+How to interpret the loss value?
 ==========================
 
 If you are curious what the value of the loss actually means, here it is.  In the final stage of the network, it ends up with a vector of 10 components (the number of classes) for each image, each component of which represents the probability that the model thinks the image belongs to a particular class.  This 10-element vector, say P, is then compared with the true label (class) for it.  If the true class of that image is c, then the loss for this particular image is 
@@ -386,7 +537,7 @@ Therefore, if the network is a random guess that returns 1/10 for every class, t
 
 which is just about what you observe in the first iteration.
 
-* The loss becomes zero if the network says the probability is 1 for the correct class and 0 for all other classes.  But as far as the classification performance  is concerned, the network outputs a correct class as long as the probability for the true class is larger than for any other class.  A sufficient condition for this is P[c] > 0.5, as it guarantees that P[c] is maximum among P[0], ..., P[9], whose sum is one.  When P[c] = 0.5, the loss would be 
+* The loss becomes zero if the network says the probability is 1 for the correct class and 0 for all other classes.  But as far as the classification performance  is concerned, the network outputs a correct class as long as the probability for the true class is larger than any other class.  A sufficient condition for this is P[c] > 0.5, as it guarantees that P[c] is greatest among P[0], ..., P[9], whose sum is one.  When P[c] = 0.5, the loss would be 
 
    -log(1/2) = 0.69314...
 
@@ -397,7 +548,7 @@ Navigating the source code
 1. open `docs/tags/HTML/index.html` with your browser to jump between functions
 1. compile it with -O0 -g (edit Makefile) and run it under the debugger (gdb or cuda-gdb)
 
-Guide for development
+A guide for developing your code
 ==========================
 
 Source code structure
@@ -422,28 +573,28 @@ Source code structure
   - `max_pooling.h` -- max pooling
   - `nll_log_softmax.h` -- log softmax + negative log-likelihood
 
-  (composite layers)
+  (the whole network)
 
   - `mnist.h` -- the entire MNIST
 
-The main function in mnist.cc instantiates a MNIST network, which is defined in `mnist.h`
-It repeats processing training data, occasionally processing validation data.
+* The main function in `mnist.cc` instantiates a MNIST network, which is defined in `mnist.h`
+* It repeats processing training data, occasionally processing test data.
 
 Each layer defines a class whose name is similar to the file name.  e.g., `convolution.h` defines `Convolution2D` class.
 
-All classes for primitive and composite layers have two important functions, among others.
+All classes for primitives and the whole network have two important functions, among others.
  * `forward` -- take an input from the previous (downstream) layer and computes its output
  * `backward` -- take a gradient of loss wrt the upstream layer and computes the gradient wrt its input and weights
 
-In addition, classes that have parameters (convolution, linear and batchnormalization) have another function.
+In addition, classes that have weight parameters (`Convolution2D` and `Linear`) have another function.
 
- * `update` -- take a learning rate parameter and update its weights, using the gradient computed in the backward phase.
+ * `update` -- update its weights, using the gradient computed in the backward phase.
 
 **********************************************************************************
 YOUR MAIN JOB WILL BE TO IMPLEMENT A HIGH PERFORMANCE VERSION OF THESE FUNCTIONS.
 **********************************************************************************
 
-You eventually want to work on all six files (`convolution.h`, `linear.h`, `relu.h`, `dropout.h`, `max_pooling.h`, `nll_log_softmax.h`) but you can work incrementally.  You can make one layer faster while leaving all others intact.  You can know which functions are taking much time by `-v 2` option.
+You will eventually want to work on all six files (`convolution.h`, `linear.h`, `relu.h`, `dropout.h`, `max_pooling.h`, `nll_log_softmax.h`) but you can work incrementally.  You can make one layer faster while leaving all others intact.  You can know which functions are taking much time by `-v 4` option.
 
 Stepping through the code using gdb (or cuda-gdb)
 --------------------------
@@ -453,9 +604,9 @@ When working on details, you want to step through the code using gdb (or cuda-gd
 The structure of the baseline implementations (and switching between different algorithms)
 --------------------------
 
-As I mentioned above, functions you will primarily be working on are `forward` and `backward` functions on the six classes and update functions for the three classes.  Each of them has a structure to switch between GPU code and CPU code (currently, a single execution can run either entirely on CPU or entirely on GPU; you cannot have some layers executed by CPU and others on GPU in the same execution).  Let's look at the `forward` function of `Convolution2D` class, for example.
+As I mentioned above, functions you will primarily be working on are `forward` and `backward` functions on the six classes and `update` functions for the two classes.  Each of them has the same structure to switch between GPU code and CPU code (currently, a single execution can run either entirely on CPU or entirely on GPU; you cannot have some layers executed by CPU and others on GPU in the same execution).  Let's look at the `forward` function of `Convolution2D` class, for example.
 
-The member function named `forward` is the entry point of the forwarding phase.  It only executes a switch statement to decide which implementation to use (cpu or gpu in the baseline code).
+The member function named `forward` is the entry point of the forwarding phase.  It only executes a switch statement to decide which implementation to use.
 
 ```
   tensor<real,maxB,OC,H-K+1,W-K+1>& forward(tensor<real,maxB,IC,H,W>& x, int training) {
@@ -488,7 +639,7 @@ The above code, depending on the algorithm chosen at the command line (-a option
   }
 ```
 
-The latter calls into GPU.  Since nvcc does not allow a class member function to be a global function (a GPU function callable from a host), we need to define a global function outside the class (`forward_cuda_base_global`), which then calls back a member function (`forward_cuda_base_device`).  This is the baseline implementation of `forward_cuda_base`.
+The latter calls into GPU.  Since `nvcc` does not allow a class member function to be a global function (a GPU function callable from a host), we need to define a global function outside the class (`forward_cuda_base_global`), which then calls back a member function (`forward_cuda_base_device`).  This is the baseline implementation of `forward_cuda_base`.
 
 ```
   void forward_cuda_base(tensor<real,maxB,IC,H,W>& x, int training) {
@@ -530,22 +681,22 @@ Here is how you change the code when working on a new implementation.  As alread
 
 Before starting the real work, there are some work for preparation.
 
- * Come up with a name of the new implementation.  Let's say it is cpu_ultra_fast (in reality, you want to have a name that better represents what it does, like cpu_simd).
+ * Come up with a name of the new implementation.  Let's say it is `cpu_awesome` (in reality, you want to have a name that better represents what it does, like `cpu_simd`).
 
- * Add a new symbol to the enum algo_t defined in mnist_util.h
+ * Add a new symbol to the enum `algo_t` defined in `mnist_util.h`
 ``` 
 typedef enum {
   algo_cpu_base,
   algo_gpu_base,
   /* add your new algorithm here (name it arbitrarily) */
 
-  algo_cpu_ultra_fast, <----  YOU ADD THIS
+  algo_cpu_awesome, <----  YOU ADD THIS
 
   algo_invalid,
 } algo_t;
 ```
 
- * Change the parse_algo function right below it so that it recognizes the new name.  Obviously, the baseline code recognizes only "cpu_base" and "gpu_base".  You simply add an appropriate "else if" branch to handle your name.
+ * Change the `parse_algo` function right below it so that it recognizes the new name.  Obviously, the baseline code recognizes only "cpu_base" and "gpu_base".  You simply add an appropriate "else if" branch to handle your name.
 
 ```
 algo_t parse_algo(const char * s) {
@@ -553,8 +704,8 @@ algo_t parse_algo(const char * s) {
     return algo_cpu_base;
   } else if (strcmp(s, "gpu_base") == 0) {
     return algo_gpu_base;
-  } else if (strcmp(s, "cpu_ultra_fast") == 0) {  <---- YOU ADD THIS
-    return algo_cpu_ultra_fast;                   <---- YOU ADD THIS
+  } else if (strcmp(s, "cpu_awesome") == 0) {  <---- YOU ADD THIS
+    return algo_cpu_awesome;                   <---- YOU ADD THIS
   } else {
     return algo_invalid;
   }
@@ -574,7 +725,7 @@ static int algo_is_cuda(const char * s, algo_t a) {
 }
 ```
 
-At this point, the program at least recognizes your algorithm and calls GPU base code or CPU base code depending on your algorithm is a GPU algorithm or not (judged by algo_is_gpu function above).  Recall that the switch statement falls back to forward_cuda_base or forward_cpu_base when the switch statement does not have a specific case for your algorithm.
+At this point, the program at least recognizes your algorithm and calls GPU base code or CPU base code depending on your algorithm is a GPU algorithm or not (judged by algo_is_gpu function above).  Recall that the switch statement falls back to `forward_cuda_base` or `forward_cpu_base` when the switch statement does not have a specific case for your algorithm.
 
 Now you are ready to add a real implementation.  Thanks to the structure just mentioned, you can do so incrementally (you do not have to implement all functions to get your version used).  To start off, let's say you want to implement a `forward` function of `Convolution2D` class.  The first thing you need to do is to add an appropriate case in the switch statement.
 
@@ -584,8 +735,8 @@ Now you are ready to add a real implementation.  Thanks to the structure just me
     tsc_t t0 = get_tsc();
     switch (opt.algo) {
       /* add case for your implementations here */
-    case algo_cpu_ultra_fast:
-      forward_cpu_ultra_fast(x); break;
+    case algo_cpu_awesome:
+      forward_cpu_awesome(x); break;
       /* implementations in the orignal version below */
     case algo_cpu_base:
       forward_cpu_base(x, training); break;
@@ -604,32 +755,32 @@ Now you are ready to add a real implementation.  Thanks to the structure just me
   }
 ```
 
-Your real job is, of course, to implement `forward_cpu_ultra_fast` function.  Use SIMD, OpenMP or whatever is necessary to make it faster.  You probably start by copy-pasting the `forward_base` implementation.
+Your real job is, of course, to implement `forward_cpu_awesome` function.  Use SIMD, OpenMP or whatever is necessary to make it faster.  You probably start by copy-pasting the `forward_base` implementation.
 
-If you work on CUDA implementation, you need to implement two functions.  Let's say your algorithm name is `cuda_ultra_fast`.  After adding another case in the switch statement like this
-
-```
-    case algo_cuda_ultra_fast:
-      forward_cuda_ultra_fast(x); break;
-```
-
-your `forward_cuda_ultra_fast` function will launch a global function with a more sensible value of the thread block size.
+If you work on CUDA implementation, you need to implement two functions.  Let's say your algorithm name is `cuda_awesome`.  After adding another case in the switch statement like this
 
 ```
-  void forward_cuda_ultra_fast(array4<maxB,IC,H,W>& x) {
+    case algo_cuda_awesome:
+      forward_cuda_awesome(x); break;
+```
+
+your `forward_cuda_awesome` function will launch a global function with a more sensible value of the thread block size.
+
+```
+  void forward_cuda_awesome(array4<maxB,IC,H,W>& x) {
     int block_sz = ...;
     int num_blocks = ...;
-    launch_and_sync((forward_cuda_ultra_fast_global<<<num_blocks,block_sz>>>(dev, x.dev)));
+    launch_and_sync((forward_cuda_awesome_global<<<num_blocks,block_sz>>>(dev, x.dev)));
   }
 ```
 
-Next you define `forward_cuda_ultra_fast_global` function outside the class.  You may want to copy the template definition for `forward_cuda_base_global` in `cuda_util.h`.  This will be a boilerplate code.
+Next you define `forward_cuda_awesome_global` function outside the class.  You may want to copy the template definition for `forward_cuda_base_global` in `cuda_util.h`.  This will be a boilerplate code.
 
 ```
 template<typename T, typename I>
-__global__ void forward_cuda_ultra_fast_global(T* dev, I* x_dev, int training) {
+__global__ void forward_cuda_awesome_global(T* dev, I* x_dev, int training) {
   /* call the member function */
-  dev->forward_cuda_ultra_fast_device(*x_dev, training);
+  dev->forward_cuda_awesome_device(*x_dev, training);
 }
 ```
 
