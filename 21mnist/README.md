@@ -13,7 +13,7 @@ The Neural Network Model
 * The model is a C++ translation of `mnist` model in pytorch examples https://github.com/pytorch/examples/tree/main/mnist
 * The original pytorch model is written in python but the baseline code provided herein is purely C++ that does not rely on any external library
   * mnist is actually the name of the database, not a neural network model, so the name `mnist` is a bit of misnomer, but this is what pytorch examples name it and we will use the same name
-* If you want, you may run the orignal pytorch implementation as follows, just to get a sense of how the learning should progress
+* If you want, you may run the original pytorch implementation as follows, just to get a sense of how the learning should progress
 * My C++ translation tries to faithfully replicate what the pytorch implementation does, so you can compare your implementation with the pytorch implementation
 ```
 $ git clone git@github.com:pytorch/examples.git 
@@ -372,14 +372,16 @@ The number of data (`--train-data-size N` and `--test-data-size N`)
 
 ```
 $ ./exe/mnist_cpu_base -m 1 --train-data-size 1 --test-data-size 1
-59257: model building starts
-1067454326: model building ends
-1067490294: loading 9000/1000 training/validation data from cifar-10-batches-bin/data_batch_1.bin starts
-1507158800: loading data ends
-1507168085: training starts
-1507170300: === train 0 - 1 ===
-2551752614: train loss = 1.770801783
-2551766476: training ends
+109363: model building starts
+30447215: model building ends
+30458449: loading data from data
+168557228: use 1 data items out of 60000
+170495562: loading data from data
+194254783: use 1 data items out of 10000
+194575069: training starts
+232683143: Train Epoch: 1 [0/1 (0%)]	Loss: 2.286959
+244354120: Test set: Average loss: 2.7689, Accuracy: 0/1 (0%)
+244366675: training ends
 ```
 
 Initialization seed (`--weight-seed S`)
@@ -416,7 +418,7 @@ There are a few places in which the program uses random numbers, namely,
  
 _ALL COMPONENTS BEHAVE DETERMINISTICALLY._  That is, if you repeat executions with the same configuration repeatedly, it starts from the same weight parameters, uses the same training data in exactly the same order and drops out the same cells.
 
-Unless your algorithm behaves undeterministically, the results should be always the same when you repeat the same command line.  This should help you debug your code.
+Unless your algorithm behaves non-deterministically, the results should be always the same when you repeat the same command line.  This should help you debug your code.
 
 You can change these things by giving different seeds for each of these random number generators.  Specifically,
 
@@ -432,7 +434,7 @@ Data directory (`-d DIR`, `--data-dir DIR`)
 --------------------------
 
 * specifies directory from which data will be read (default: `data`)
-* file names in the directory are hardcoded
+* file names in the directory are hard-coded
   * `DIR/train-images-idx3-ubyte` : training images
   * `DIR/train-labels-idx1-ubyte` : training labels
   * `DIR/t10k-images-idx3-ubyte` : test images
@@ -544,9 +546,11 @@ which is just about what you observe in the first iteration.
 Navigating the source code
 ==========================
 
-1. open `docs/doxy/html/index.html` with your browser to see documentation of source files
-1. open `docs/tags/HTML/index.html` with your browser to jump between functions
-1. compile it with -O0 -g (edit Makefile) and run it under the debugger (gdb or cuda-gdb)
+Three options to know how things actually work
+
+1. open https://taulec.zapto.org/~share/parallel-distributed/21mnist/docs/doxy/html/files.html to see function/method/struct documentation (the same documents are in the source code, too, but this one is easier to navigate)
+1. open https://taulec.zapto.org/~share/parallel-distributed/21mnist/docs/tags/HTML/index.html with your browser to jump between functions (where this function is defined and where this function is called)
+1. compile it with -O0 -g (edit Makefile) and run it under the debugger (gdb or cuda-gdb) (useful to know how things exactly work, from reading data to training to calling layers to updating weights)
 
 A guide for developing your code
 ==========================
@@ -900,7 +904,6 @@ Here is an output of the linear layer.
 
 ```
 tau@xps13:include$ ./exe/convolution_cpu_base 
-==== 0 ====
 ==== 0 ====
 ∂L/∂x・dx = -0.031560765
 ∂L/∂w・dw = -0.924178811
