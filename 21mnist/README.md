@@ -876,8 +876,6 @@ Indeed,
 
 ```
 $ cd include
-$ cp compile.mk Makefile
-   ... edit Makefile to include your algorithm in the same as before ...
 $ make
 ```
 
