@@ -123,6 +123,8 @@ $ ./exe/mnist_cpu_base [options]
 $ srun -p cpu -t 0:20:00 ./exe/mnist_cpu_base [options]
 ```
 
+_Details about srun command will be given later (please ignore it for a moment)_
+
 GPU:
 ------------------
 
@@ -137,6 +139,9 @@ $ ./exe/mnist_cuda_base [options]
 ```
 $ srun -p gpu -t 0:20:00 --gres gpu:1 ./exe/mnist_cuda_base [options]
 ```
+
+_Details about srun command will be given later (please ignore it for a moment)_
+
 
 Default Behavior:
 ------------------
@@ -952,7 +957,7 @@ How small is small enough?  It actually depends on layers and the type of floati
 
 
 
-UNDER CONSTRUCTION BELOW. STAY tuned
+_UNDER CONSTRUCTION BELOW. STAY tuned_
 =============
 
 A record submission tool and record viewers
