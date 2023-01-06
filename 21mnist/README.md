@@ -128,7 +128,7 @@ _Details about srun command will be given later (please ignore it for a moment)_
 GPU:
 ------------------
 
-* Run on login node.  You cannot run GPU code on the login node, so it's almost pointless
+* Run on tauleg000
 
 ```
 $ ./exe/mnist_cuda_base [options]
