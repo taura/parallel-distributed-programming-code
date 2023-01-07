@@ -11,7 +11,7 @@
 #include "max_pooling.h"
 #include "dropout.h"
 #include "linear.h"
-#include "nll_log_softmax.h"
+#include "nll_softmax.h"
 #include "grad_check.h"
 
 /**
@@ -34,7 +34,7 @@ struct MNISTCfg {
   ReluCfg relu3;                  /**< relu3's cfg parameter */
   DropoutCfg dropout2;            /**< dropout2's cfg parameter */
   LinearCfg fc2;                  /**< fc2's cfg parameter */
-  NLLLogSoftmaxCfg nll_log_softmax; /**< nll_log_softmax's cfg parameter */
+  NLLSoftmaxCfg nll_softmax;   /**< nll_softmax's cfg parameter */
 };
 
 /**
@@ -74,7 +74,7 @@ struct MNIST {
   Relu<maxB,nF> relu3;
   Dropout<maxB,nF> dropout2;
   Linear<maxB,nC,nF> fc2;
-  NLLLogSoftmax<maxB,nC> nll_log_softmax;
+  NLLSoftmax<maxB,nC> nll_softmax;
   
   /**
      @brief initialize everything
@@ -96,7 +96,7 @@ struct MNIST {
     relu3.init(opt, lgr, rg, cfg.relu3);
     dropout2.init(opt, lgr, rg, cfg.dropout2);
     fc2.init(opt, lgr, rg, cfg.fc2);
-    nll_log_softmax.init(opt, lgr, rg, cfg.nll_log_softmax);
+    nll_softmax.init(opt, lgr, rg, cfg.nll_softmax);
   }
   /**
      @brief set the device pointer for this and all subobjects
@@ -124,7 +124,7 @@ struct MNIST {
     relu3.set_dev(dev ? &dev->relu3 : 0);
     dropout2.set_dev(dev ? &dev->dropout2 : 0);
     fc2.set_dev(dev ? &dev->fc2 : 0);
-    nll_log_softmax.set_dev(dev ? &dev->nll_log_softmax : 0);
+    nll_softmax.set_dev(dev ? &dev->nll_softmax : 0);
 #else
     (void)dev;
 #endif
@@ -170,7 +170,7 @@ struct MNIST {
     tensor<real,maxB,nF>&       x8  = relu3.forward(x7, training);
     tensor<real,maxB,nF>&       x9  = dropout2.forward(x8, training);
     tensor<real,maxB,nC>&       x10 = fc2.forward(x9, training);
-    tensor<real,maxB>&          l   = nll_log_softmax.forward(x10, t, training);
+    tensor<real,maxB>&          l   = nll_softmax.forward(x10, t, training);
     return l;
   }
   /**
@@ -190,7 +190,7 @@ struct MNIST {
      @sa update
   */
   tensor<real,maxB,C,H,W>& backward(tensor<real,maxB>& gl, tensor<idx_t,maxB>& t) {
-    tensor<real,maxB,nC>&       gx10 = nll_log_softmax.backward(gl, t);
+    tensor<real,maxB,nC>&       gx10 = nll_softmax.backward(gl, t);
     tensor<real,maxB,nF>&       gx9  = fc2.backward(gx10);
     tensor<real,maxB,nF>&       gx8  = dropout2.backward(gx9);
     tensor<real,maxB,nF>&       gx7  = relu3.backward(gx8);
@@ -208,7 +208,7 @@ struct MNIST {
      @param (pred) the vector to which the predicted classes are written to
   */
   void predict(tensor<idx_t,maxB>& pred) {
-    tensor<real,maxB,nC>& y = nll_log_softmax.y;
+    tensor<real,maxB,nC>& y = nll_softmax.y;
     to_host(&y, opt.cuda_algo);
     const idx_t B = idxs.n0;
     pred.set_n0(B);
@@ -369,7 +369,7 @@ int mnist_main(int argc, char ** argv) {
     .relu3 = {},
     .dropout2 = { .ratio =  0.5f * (seed2 != 0), .seed = seed2 },
     .fc2 = {},
-    .nll_log_softmax = {}
+    .nll_softmax = {}
   };
   for (int iter = 0; iter < n_checks; iter++) {
     printf("==== %d ====\n", iter);

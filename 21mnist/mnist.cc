@@ -114,7 +114,7 @@ int main(int argc, char ** argv) {
     .relu3 = {},
     .dropout2 = { .ratio =  0.5f * (seed2 != 0), .seed = seed2 },
     .fc2 = {},
-    .nll_log_softmax = {}
+    .nll_softmax = {}
   };
   MNIST<maxB,C,H,W,nC> * mnist = new MNIST<maxB,C,H,W,nC>();
   mnist->init(opt, &lgr, rg, cfg);

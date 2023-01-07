@@ -1,5 +1,5 @@
 /**
-   @file nll_log_softmax.h
+   @file nll_softmax.h
    @brief negative log likelihood loss applied to log softmax
  */
 #pragma once
@@ -10,10 +10,10 @@
 #include "grad_check.h"
 
 /**
-   @brief configuration data for NLLLogSoftmaxCfg
+   @brief configuration data for NLLSoftmaxCfg
    @details no configuration currently exist
 */
-struct NLLLogSoftmaxCfg { };
+struct NLLSoftmaxCfg { };
   
 /**
    @brief negative log likelihood loss of log softmax
@@ -32,9 +32,9 @@ struct NLLLogSoftmaxCfg { };
    using the negative log likelihood
  */
 template<idx_t maxB,idx_t nC>
-struct NLLLogSoftmax {
+struct NLLSoftmax {
 #if __CUDACC__
-  NLLLogSoftmax<maxB,nC>* dev; /**< device shadow */
+  NLLSoftmax<maxB,nC>* dev; /**< device shadow */
 #endif
   cmdline_opt opt;              /**< command line option */
   logger * lgr;                 /**< logger */
@@ -49,7 +49,7 @@ struct NLLLogSoftmax {
      @param (rg) random number generator for initializing weights
      @param (cfg) configuration parameters
   */
-  void init(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, NLLLogSoftmaxCfg cfg) {
+  void init(cmdline_opt opt, logger * lgr, rnd_gen_t& rg, NLLSoftmaxCfg cfg) {
     this->opt = opt;
     this->lgr = lgr;
     (void)rg;
@@ -64,10 +64,11 @@ struct NLLLogSoftmax {
      point to the corresponding subjects in the device memory.
      if dev is not null, all dev fields become null.
   */
-  void set_dev(NLLLogSoftmax<maxB,nC>* dev) {
+  void set_dev(NLLSoftmax<maxB,nC>* dev) {
 #if __CUDACC__
     this->dev = dev;
     y.set_dev(dev ? &dev->y : 0);
+    l.set_dev(dev ? &dev->l : 0);
     gx.set_dev(dev ? &dev->gx : 0);
 #else
     (void)dev;
@@ -343,7 +344,7 @@ struct NLLLogSoftmax {
      @param (o) the object from which gradients get copied
      @details as this layer has no weights, it's noop
   */
-  void copy_grad(NLLLogSoftmax<maxB,nC>& o) {
+  void copy_grad(NLLSoftmax<maxB,nC>& o) {
     (void)o;
   }
   /**
@@ -359,7 +360,7 @@ struct NLLLogSoftmax {
      @param (o) the object to take the inner product with
      @details as this layer has no weights, it returns zero
   */
-  double grad_dot_grad(NLLLogSoftmax<maxB,nC>& o) {
+  double grad_dot_grad(NLLSoftmax<maxB,nC>& o) {
     (void)o;
     return 0.0;
   }
@@ -372,13 +373,13 @@ struct NLLLogSoftmax {
    @param (argv) command line args
    @sa grad_check
    @details if this header file is included from
-   a main C++ file and define nll_log_softmax_main to be main
-   (e.g., with -Dnll_log_softmax_main=main), then this
+   a main C++ file and define nll_softmax_main to be main
+   (e.g., with -Dnll_softmax_main=main), then this
    function becomes th main function of the executable.
    it calls grad_check repeatedly to test
-   the implementation of backward of nll_log_softmax.
+   the implementation of backward of nll_softmax.
 */
-int nll_log_softmax_main(int argc, char ** argv) {
+int nll_softmax_main(int argc, char ** argv) {
   cmdline_opt opt = parse_args(argc, argv);
   const idx_t maxB = MAX_BATCH_SIZE;
   const idx_t B = min_i(maxB, opt.batch_size);
@@ -393,14 +394,14 @@ int nll_log_softmax_main(int argc, char ** argv) {
   /* check errors */
   double max_e = 0.0;
   double sum_e = 0.0;
-  NLLLogSoftmaxCfg cfg;
+  NLLSoftmaxCfg cfg;
   for (int iter = 0; iter < n_checks; iter++) {
     printf("==== %d ====\n", iter);
-    double e = grad_check_loss<NLLLogSoftmax<maxB,nC>,
+    double e = grad_check_loss<NLLSoftmax<maxB,nC>,
                                tensor<real,maxB,nC>,
                                tensor<idx_t,maxB>,
                                tensor<real,maxB>,
-                               NLLLogSoftmaxCfg>(opt, &lgr, rg, cfg, B, nC);
+                               NLLSoftmaxCfg>(opt, &lgr, rg, cfg, B, nC);
     max_e = max_r(max_e, e);
     sum_e += e;
   }
