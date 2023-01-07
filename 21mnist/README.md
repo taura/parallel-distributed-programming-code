@@ -866,7 +866,7 @@ Catching logical (mathematics) errors
 After you have a code that at least is not caught by array indexing errors, you now want to check if the code really does the job.  The first command line you want to test your code with is this.
 
 ```
-$ ./exe/mnist_cpu_base --train-data-size 1 --test-data-size 1 -a name_of_your_algorithm
+$ ./exe/mnist_cpu_base --train-data-size 1 --test-data-size 0 -a name_of_your_algorithm
 ```
 Like I introduced already, this processes only a single sample repeatedly.  The error thus should steadily decrease over iterations and the loss should quickly drop to almost zero.  
 
