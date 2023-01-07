@@ -80,6 +80,7 @@ Dataset: MNIST
   * `data/t10k-images-idx3-ubyte` : test images
   * `data/t10k-labels-idx1-ubyte` : test labels
 * If you executed the pytorch implementation, the same data should have been downloaded into `examples/data/MNIST/raw/`; the contents of the `raw/` directory and `data/` directory should be identical
+* If you are curious what kind of images they are, you can take a look at [the first 500 images](http://taulec.zapto.org/~share/parallel-distributed/21mnist/imgs/train-pgms/00000_00500/) in the training dataset
 
 Compile: 
 ==================
