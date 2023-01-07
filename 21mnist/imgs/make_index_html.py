@@ -6,7 +6,7 @@ import sys
 
 def make_index_html(directory):
     tds = []
-    for png in glob.glob("{}/*.png".format(directory)):
+    for png in sorted(glob.glob("{}/*.png".format(directory))):
         base = os.path.basename(png)
         m = re.match("i\d+_(?P<t>\d).png", base)
         assert(m), base
