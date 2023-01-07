@@ -460,7 +460,7 @@ Learning rate (`--lr R`)
 
 * In practice, learning rate is an important hyper parameter to affect the stability or speed of convergence, but in this exercise, you do not have to play with it as the main theme is to optimize performance of the computation
 
-GPU execution (`-a gpu_base`)
+GPU execution (`-a cuda_base`)
 --------------------------
 
 * The program compiled with nvcc supports GPU execution and this is the default behavior. It also supports CPU execution with `-a cpu_base` is given
@@ -469,10 +469,10 @@ GPU execution (`-a gpu_base`)
 
 ```
 $ exe/mnist_cpu_base -a cpu_base  # (1) baseline code on CPU 
-$ exe/mnist_cpu_base -a gpu_base  # (2) error
+$ exe/mnist_cpu_base -a cuda_base  # (2) error
 $ exe/mnist_cpu_base              # (3) same as (1)
 $ exe/mnist_cuda_base -a cpu_base # (4) baseline code on CPU 
-$ exe/mnist_cuda_base -a gpu_base # (5) baseline code on GPU
+$ exe/mnist_cuda_base -a cuda_base # (5) baseline code on GPU
 $ exe/mnist_cuda_base             # (6) same as (5)
 ```
 
@@ -690,7 +690,7 @@ This same pattern appears for backward and update too.  In this way, the baselin
 How to add your implementation
 --------------------------
 
-Here is how you change the code when working on a new implementation.  As already mentioned, there are two implementations already in place, cpu_base and gpu_base.
+Here is how you change the code when working on a new implementation.  As already mentioned, there are two implementations already in place, cpu_base and cuda_base.
 
 Before starting the real work, there are some work for preparation.
 
@@ -700,7 +700,7 @@ Before starting the real work, there are some work for preparation.
 ``` 
 typedef enum {
   algo_cpu_base,
-  algo_gpu_base,
+  algo_cuda_base,
   /* add your new algorithm here (name it arbitrarily) */
 
   algo_cpu_awesome, <----  YOU ADD THIS
@@ -709,14 +709,14 @@ typedef enum {
 } algo_t;
 ```
 
- * Change the `parse_algo` function right below it so that it recognizes the new name.  Obviously, the baseline code recognizes only "cpu_base" and "gpu_base".  You simply add an appropriate "else if" branch to handle your name.
+ * Change the `parse_algo` function right below it so that it recognizes the new name.  Obviously, the baseline code recognizes only "cpu_base" and "cuda_base".  You simply add an appropriate "else if" branch to handle your name.
 
 ```
 algo_t parse_algo(const char * s) {
   if (strcmp(s, "cpu_base") == 0) {
     return algo_cpu_base;
-  } else if (strcmp(s, "gpu_base") == 0) {
-    return algo_gpu_base;
+  } else if (strcmp(s, "cuda_base") == 0) {
+    return algo_cuda_base;
   } else if (strcmp(s, "cpu_awesome") == 0) {  <---- YOU ADD THIS
     return algo_cpu_awesome;                   <---- YOU ADD THIS
   } else {
