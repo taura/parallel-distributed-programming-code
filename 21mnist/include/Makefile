@@ -11,7 +11,7 @@ files += linear
 files += relu
 files += dropout
 files += max_pooling
-files += nll_log_softmax
+files += nll_softmax
 files += mnist
 
 #
