@@ -21,10 +21,10 @@ import time
 if __name__ == "__main__":
     app = dash.Dash(__name__)
 else:
-    app = dash.Dash(__name__, requests_pathname_prefix='/viewer/')
+    app = dash.Dash(__name__, requests_pathname_prefix='/mnist_viewer/')
 
 application = app.server
-a_sqlite = "mnist_records/a.sqlite"
+a_sqlite = "/home/share/public_html/parallel-distributed/21mnist/records/mnist_records/a.sqlite"
 
 ################################################
 # nuts and bolts
