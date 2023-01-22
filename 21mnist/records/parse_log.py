@@ -135,13 +135,15 @@ class log_parser_base:
             self.parse_kernel_start()
             self.parse_kernel_end()
         # it should not be here, but mnist.cc prints batch end before samples
-        self.eat("test_batch_end")
+        if self.tok == "test_batch_end":
+            self.eat("test_batch_end")
         while self.tok == "sample":
             self.eat("sample")
         if self.tok == "test_loss":
             self.eat("test_loss")
         # it should be here
-        # self.eat("test_batch_end")
+        if self.tok == "test_batch_end":
+            self.eat("test_batch_end")
     def parse_train_epoch(self):
         """
         227997219: Train Epoch x starts

@@ -59,10 +59,10 @@ static void test(MNIST<maxB,C,H,W,nC> * mnist,
     to_host(&y, cuda_algo);
     mnist->predict(mnist->pred);
     Lsum += y.sum();
-    lgr.log(2, "Test Epoch %ld batch %ld (samples %ld - %ld) ends",
-            epoch, batch_idx, n_samples, n_samples + mnist->x.n0);
     n_samples += mnist->x.n0;
     n_correct += mnist->log_prediction(n_samples, mnist->pred, mnist->t);
+    lgr.log(2, "Test Epoch %ld batch %ld (samples %ld - %ld) ends",
+            epoch, batch_idx, n_samples, n_samples + mnist->x.n0);
   }
   assert(n_samples == data.n_data);
   if (n_samples > 0) {
