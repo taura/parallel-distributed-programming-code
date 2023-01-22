@@ -720,6 +720,9 @@ struct logger {
   /**
      @brief log hostname for the record
    */
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 64
+#endif
   int log_host() {
     char name[HOST_NAME_MAX+1];
     name[0] = 0;

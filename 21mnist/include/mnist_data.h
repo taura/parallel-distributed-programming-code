@@ -141,8 +141,12 @@ struct mnist_dataset {
     long data_dir_len = strlen(data_dir);
     char images_file[data_dir_len + 100];
     char labels_file[data_dir_len + 100];
-    sprintf(images_file, "%s/%s-images-idx3-ubyte", data_dir, (train ? "train" : "t10k"));
-    sprintf(labels_file, "%s/%s-labels-idx1-ubyte", data_dir, (train ? "train" : "t10k"));
+    int written = snprintf(images_file, sizeof(images_file),
+                           "%s/%s-images-idx3-ubyte", data_dir, (train ? "train" : "t10k"));
+    assert(written < (int)sizeof(images_file));
+    written = snprintf(labels_file, sizeof(labels_file),
+                       "%s/%s-labels-idx1-ubyte", data_dir, (train ? "train" : "t10k"));
+    assert(written < (int)sizeof(labels_file));
     pascal_vincent img_pv = read_pascal_vincent_format(images_file);
     pascal_vincent label_pv = read_pascal_vincent_format(labels_file);
     assert(label_pv.n_dims == 1);
