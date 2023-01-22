@@ -958,10 +958,7 @@ How small is small enough?  It actually depends on layers and the type of floati
 
 
 
-_UNDER CONSTRUCTION BELOW. STAY tuned_
-=============
-
-A record submission tool and record viewers
+A record submission tool and record viewers (updated: 23 Jan, 2023)
 =============
 
 * Here is a tool to submit a result of executing mnist and a web page to see results submitted by all
@@ -972,7 +969,7 @@ Submit your run
 -------------
 
 * Running an executable leaves a log file, called mnist.log by default (you can change it with `--log` option)
-* Data can be viewed at https://taulec.zapto.org/viewer/
+* Data can be viewed at https://taulec.zapto.org/mnist_viewer/
 * Do the following on taulec to submit your result 
 ```
 submit < mnist.log
@@ -982,15 +979,12 @@ submit < mnist.log
 View your run
 -------------
 
-* visit https://taulec.zapto.org/viewer/ to see the results
-* it is going to evolve (translation: I am still working on it)
+* visit https://taulec.zapto.org/mnist_viewer/ to see the results
 
 Details you should not (but occasionally might) have to know
 -------------
 
 * `submit` is a tailor-made command installed at /usr/local/bin/submit on taulec.zapto.org
-* data are stored at /home/share/mnist_records on taulec.zapto.org
-* to allow you to write to it, which you normally cannot, `submit` is a setuid program that effectively runs as tau 
 
 Performance criteria and the regulation
 ==========================
