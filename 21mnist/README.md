@@ -972,9 +972,17 @@ Submit your run
 * Data can be viewed at https://taulec.zapto.org/mnist_viewer/
 * Do the following on taulec to submit your result 
 ```
-submit < mnist.log
+submit mnist.log
 ```
-* `submit` is a hand-made tool installed (globally) on taulec.  You do not find it in the repository
+* You are recommended to do the following before you submit the result to make sure the log is well-formed
+```
+submit --dryrun mnist.log
+```
+* If the log file is not on taulec (e.g., you are working on your laptop), do the following
+```
+ssh uXXXX@taulec.zapto.org submit --dryrun < mnist.log
+ssh uXXXX@taulec.zapto.org submit < mnist.log
+```
 
 View your run
 -------------
