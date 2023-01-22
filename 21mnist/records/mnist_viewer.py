@@ -24,7 +24,7 @@ else:
     app = dash.Dash(__name__, requests_pathname_prefix='/mnist_viewer/')
 
 application = app.server
-a_sqlite = "/home/share/public_html/parallel-distributed/21mnist/records/mnist_records/a.sqlite"
+a_sqlite = "mnist_records/a.sqlite"
 
 ################################################
 # nuts and bolts
@@ -55,11 +55,12 @@ def preface_div():
 
 def run_table_div():
     cols = [(1, "seqid"),(1, "owner"),(1, "host"),(1, "algo_s"),(1, "cuda_algo"),
-            (1, "batch_size"),(1, "epochs"),(1, "lr"),
-            (1, "train_data_size"), (1, "test_data_size"), 
+            (1, "train_data_size"),(1, "epochs"),(1, "test_data_size"), 
+            (1, "batch_size"),(1, "lr"),
             (1, "start_at"), (1, "end_at"),
+            (1, "train_data_size * epochs as samples"),
             (1, "pt(end_at) - pt(start_at) as elapsed"),
-            (1, "(pt(end_at) - pt(start_at)) / (batch_size * epochs) as tps"),
+            (1, "(train_data_size * epochs) / (pt(end_at) - pt(start_at)) as samples_per_sec"),
             (0, "verbose"),(0, "data_dir"),
             (0, "dropout_seed_1"), (0, "dropout_seed_2"),
             (0, "weight_seed"), 
@@ -100,7 +101,7 @@ def run_table_div():
                 dcc.Input(id="sql_selected2", value="")]),
         html.P(["from info where ", dcc.Input(id="sql_where")]),
         html.P(["group by ", dcc.Input(id="sql_group_by")]),
-        html.P(["order by ", dcc.Input(id="sql_order_by", value="tps")]),
+        html.P(["order by", dcc.Input(id="sql_order_by", value="samples_per_sec  desc")]),
         html.P(["limit ", dcc.Input(id="sql_limit", value="100")]),
         html.P([html.Button("update", id="sql_update_button")]),
         html.P("", id="sql_cmd"),
@@ -309,7 +310,7 @@ def make_kernel_name(row, group_by):
 def update_kernel_times_bar_chart(sql_selector_n_clicks, 
                                   selected, selected2, where, group_by, order_by, limit):
     kernel_times_where = ""
-    kernel_times_group_by = "cls,fun"
+    kernel_times_group_by = "cls,cargs,fun,fargs"
     conn = sqlite_connect(a_sqlite)
     cmd = build_sql(selected, selected2, where, group_by, order_by, limit)
     #print("cmd=", cmd)
@@ -337,7 +338,7 @@ def update_kernel_times_bar_chart(sql_selector_n_clicks,
         tbl = go.Figure(data=[table])
     if 1:
         # graph
-        cmd1 = ("""select {},sum(dt)/sum(b-a) as avg_dt
+        cmd1 = ("""select {},avg(dt /(b-a)) as avg_dt
         from kernel_times 
         where seqid in ({}) {}
         group by {}
