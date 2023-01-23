@@ -41,7 +41,7 @@ vers += cuda_base
 #
 flags :=
 #flags += -O0
-flags += -O1
+flags += -O3
 flags += -DMAX_BATCH_SIZE=64
 flags += -DARRAY_INDEX_CHECK=0
 #flags += -DARRAY_INDEX_CHECK=1
@@ -93,7 +93,7 @@ nvcc_ldflags :=
 # C++ compiler for versions
 #
 
-cpu_base_cxx := g++
+cpu_base_cxx := clang++
 cuda_base_cxx := nvcc
 fast_cxx := clang++
 
