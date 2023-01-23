@@ -231,6 +231,7 @@ class kernel_parser:
         self.patterns = {(k, re.compile(v)) for k, v in patterns_}
         self.tokenize_pattern = re.compile("(%s)" % "|".join([v for k, v in patterns_]))
         self.first_type = set(["id"])
+        self.first_multiplicative = set(["id", "num", "("])
         self.tokens = None
         self.idx = None
         self.tok = None
@@ -289,10 +290,16 @@ class kernel_parser:
         multiplicative ::= primary (*// multiplicative)*
         primary ::= id | num | ( expr )
         """
-        expr = self.parse_multiplicative()
-        while self.kind in ["+", "-"]:
-            operator = self.eat([self.kind])
-            expr = (operator, expr, self.parse_template_expr())
+        if self.kind in self.first_multiplicative:
+            expr = self.parse_multiplicative()
+            while self.kind in ["+", "-"]:
+                operator = self.eat([self.kind])
+                expr = (operator, expr, self.parse_template_expr())
+        else:
+            #nvc++ emits tensor<float, maxB, OC, <expression>, <expression>> 
+            self.eat(["<"])
+            expr = self.eat(["id"])    # expression
+            self.eat([">"])
         return expr
     def parse_multiplicative(self):
         """
