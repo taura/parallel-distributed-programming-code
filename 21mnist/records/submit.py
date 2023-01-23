@@ -16,8 +16,8 @@ import tempfile
 import time
 import parse_log
 
-#default_data_dir = "/home/share/public_html/parallel-distributed/21mnist/records/mnist_records"
-default_data_dir = "mnist_records"
+default_data_dir = "/home/share/public_html/parallel-distributed/21mnist/records/mnist_records"
+#default_data_dir = "mnist_records"
 
 dbg = 0
 
