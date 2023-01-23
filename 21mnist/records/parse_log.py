@@ -407,7 +407,8 @@ class kernel_parser:
         instantiations = {}
         if self.kind == "[":
             self.eat(["["])
-            # self.eat(["with"])
+            if self.kind == "with":
+                self.eat(["with"])
             if self.kind in self.first_type:
                 var, val = self.parse_instantiation()
                 instantiations[var] = val
