@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" / >
+<title>What I like to see in the report</title>
+
+
+<style>
+body {counter-reset: h2}
+  h2 {counter-reset: h3}
+  h3 {counter-reset: h4}
+  h4 {counter-reset: h5}
+  h5 {counter-reset: h6}
+
+  h2:before {counter-increment: h2; content: counter(h2) ". "}
+  h3:before {counter-increment: h3; content: counter(h2) "." counter(h3) ". "}
+  h4:before {counter-increment: h4; content: counter(h2) "." counter(h3) "." counter(h4) ". "}
+  h5:before {counter-increment: h5; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "}
+  h6:before {counter-increment: h6; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "}
+
+  h2.nocount:before, h3.nocount:before, h4.nocount:before, h5.nocount:before, h6.nocount:before { content: ""; counter-increment: none } 
+
+h1 {
+  font-size   : 14pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #BBDDBB;
+}
+
+h2 {
+  font-size   : 13pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #CCEECC;
+}
+
+h3 {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #DDFFDD;
+}
+
+h4 {
+  font-size   : 10pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #FFFFFF;
+}
+
+div {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-color     : #99A1AA;
+}
+
+p {
+  font-size   : 12pt;
+  font-family : serif;
+  border-color     : #99A1AA;
+}
+
+pre {
+  background-color:#efe;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>What I like to see in the report</h1>
+<div>
+<font size=-1>(the page is encoded in UTF-8)</font>
+</div>
+
+<h2>Preface</h2>
+<div>
+  <p>
+    Several of you (legitimately) asked some specifics about the final
+    report, like whether this piece of information should be included
+    in the report or in more general what's exactly expected to be in
+    the report.  They are all legitimate questions and I may have been
+    too vague about this, but honestly I've never thought about
+    instructing you with
+    much specifics about the exact contents, style, format
+    or structure, at least in superficial terms.  
+  </p>
+
+  <p>With that said, let me try my best to be clear about what I am
+    generally expecting in the final report,
+    with some minimum (superficial) requirements such as the length.
+  </p>
+
+  <p>Below, I first address what I expect for the Option 1 (Optimization
+    of VGG), as this case is easier to explain specifically.
+  </p>
+</div>
+
+<h2>(Superficial) requirements for "Optimization of VGG" report</h2>
+<div>
+  <ul>
+    <li><i>A report must be a sufficiently self-contained
+        document that provides the reader with information
+        about what you did.</i>
+      <font color=red>
+        <i>It's not like the report of the SpMV hands-on;</i>
+      </font>
+      <p>
+      in that SpMV hands-on, I, essentially, asked you to paste
+      only execution logs, with a very detailed instruction
+      on what you should do in each step.  One reason was that
+      the main goal was exposing you to parallel computing.
+      I just wanted to bring everybody on the same page
+      about how you do OpenMP, how you do CUDA, how to launch
+      jobs, etc.  That's why I gave detailed instructions
+      on what you are supposed to do.
+      The other reason was
+      I wanted to minimize your work other than coding.
+      </p>
+      <p>
+      What I expect in the final report is different.
+      It is exactly what you thought you should do.
+      I did not (do not want to) give you details on
+      what you should do and how you should do it.
+      I gave lots of hints about where you should get started,
+      but in the end of the day, it is you who
+      should think about and decide what to do.
+      Therefore, 
+      <i>the most basic information I expect from
+        you in the final report is what you thought you should
+        do to accomplish the goal and what you actually did.</i>
+      Describe your thought and the action you took
+      in a convincing manner.
+      </p>
+    </li>
+
+    <li>The number of pages.  Well, again, I do not want to be too
+      specific, as the number of pages is something you can
+      easily play with.  There can be a report of 5 pages having
+      much denser information than a report of 20 pages whose
+      most contents are copy of unimportant part of code or
+      unimportant part of the execution logs.
+      <p>
+      <font color=red><i>With that said,
+          I would say I would raise eyebrows if I receive a report
+          of two or three pages.</i></font>
+      I believe that any serious
+      description of any serious effort on this problem
+      won't fit three pages.
+      </p>
+    </li>
+
+    <li>If you worry about what to write to make it not too thin, you
+      may be (wrongly) thinking it's just about inserting a few <tt>#omp
+      pragma parallel for</tt>'s (or straightforwardly parallelizing a
+      few loops with CUDA).  Just think about the maximum performance
+      the machine is hopefully able to achieve (e.g., maximum FLOPS,
+      the maximum memory bandwidth or any other limitation of the
+      machine that applies to the specific code you are trying to
+      optimize) and assess how close your code is to the maximum.
+      I don't say they should be very close but if they are too far,
+      there are much left to do and this is where your serious
+      effort should begin.
+      In addition, this demands an
+      <i>analysis</i> of your code (why it performance only so well).
+      Even if it is only about parallelization, chances are that
+      you are unlikely to get a linear speedup (Px speedup with P cores)
+      in the initial attempt.  This is another place where
+      your <i>analysis</i> will start.
+      <p>
+      <font color=red><i>There will be a lot to write
+          about how you understand and analyze the performance.</i></font>
+      </p>
+    </li>
+
+    <li>For a team report, the report can be two separate reports
+      or a combined single report.
+      <i>Either way, each individual
+        should submit a report</i> (in the latter case, two members
+      submit the same report).  For a combined report,
+      <ul>
+        <li>it should be a single coherent document; it should not be
+          a document just stapling otherwise two separate documents.</li>
+        <li>how two members worked must be clarified in a separate
+          section, perhaps in an appendix
+          (e.g., who did which part of the experiments, 
+          who wrote which section, etc.)</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<h2>More general guidelines</h2>
+<div>
+  I will write about this later. stay tuned...
+</div>
+
+
+</body>
+</html>
+

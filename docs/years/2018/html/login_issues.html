@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" / >
+<title>Issues regarding accessing clusters</title>
+
+
+<style>
+body {counter-reset: h2}
+  h2 {counter-reset: h3}
+  h3 {counter-reset: h4}
+  h4 {counter-reset: h5}
+  h5 {counter-reset: h6}
+
+  h2:before {counter-increment: h2; content: counter(h2) ". "}
+  h3:before {counter-increment: h3; content: counter(h2) "." counter(h3) ". "}
+  h4:before {counter-increment: h4; content: counter(h2) "." counter(h3) "." counter(h4) ". "}
+  h5:before {counter-increment: h5; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "}
+  h6:before {counter-increment: h6; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "}
+
+  h2.nocount:before, h3.nocount:before, h4.nocount:before, h5.nocount:before, h6.nocount:before { content: ""; counter-increment: none } 
+
+h1 {
+  font-size   : 14pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #BBDDBB;
+}
+
+h2 {
+  font-size   : 13pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #CCEECC;
+}
+
+h3 {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #DDFFDD;
+}
+
+h4 {
+  font-size   : 10pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #FFFFFF;
+}
+
+div {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-color     : #99A1AA;
+}
+
+p {
+  font-size   : 12pt;
+  font-family : serif;
+  border-color     : #99A1AA;
+}
+
+pre {
+  background-color:#efe;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Issues regarding accessing clusters</h1>
+<div>
+<font size=-1>(the page is encoded in UTF-8)</font>
+</div>
+
+
+<h2>Everybody, please follow the following steps</h2>
+<div>
+  <p>
+  With so many students in the class and so many of them
+  having an issue about the login, I need to systematically
+  correct your status.
+  </p>
+
+  <p>
+    <font color=red><i>Let me know your status no matter what it is,</i></font>
+      by filling
+      this <a href="https://docs.google.com/spreadsheets/d/1FpHInmJccXQCNjiIl1bbUKINGeuKqP0JF7k8j2c6Rso/edit?usp=sharing">spreadsheet</a>.
+      Here is the detailed instructions
+  </p>
+
+  <ol>
+    <li>find your name on the column A.
+      If you do not find your name, add one at the end
+      (this happens when you are not in the group of my lecture
+      but in the group of your lab, which is fine)
+    </li>
+    <li>check the column B "the status as I know it"</li>
+    <li>If it describes an issue we recognize about you, take an action
+      (see below: <a href=#what>What you should do about issues</a>)</li>
+    <li>If it says OK and you are in fact able to login,
+      put "OK" in the column D "THE STATUS AS YOU WITNESSED IT"
+      and update the column E with the time you put the entry.
+      You can update it later when the status changes.
+    </li>
+    <li>If it says OK but you are still unable to login,
+      describe your issue on the column D ("THE STATUS AS YOU WITNESSED IT"),
+      in detail.  Please describe it in details.  More instructions
+      on how to report your issue are below
+      (<a href=#what2>
+        What you should do when it says OK but you are still not able to login
+      </a>).
+    </li>
+  </ol>
+</div>
+
+<a name=what> </a>
+<h2>What you should do about issues</h2>
+<div>
+
+  When the column B says we know there is an issue about you, please take the following action depending on the issue.
+  <ul>
+    <li><font color=red>still working:</font>
+      It just means the admins do not catch up with the high
+      number of account creation requests.  Just wait for a day or two
+      and keep checking this page.  You will receive an Email when
+      it is ready.  
+    </li>
+    <li><font color=red>Email address is wrong:</font>
+      This means the Email address you gave in the registration page
+      was wrong and the admin cannot notify you that your account is ready.
+      <font color=blue>Please send an Email to the administrator (HPCS; 
+        ist_support @ hpc-sol.co.jp), with your correct Email address.</font>
+      Chances are you actually have an account.
+    </li>
+    <li><font color=red>No public key:</font>
+      This means you did not upload your SSH public key in the
+      registration page.  <font color=blue>
+        Please send an Email to
+        the administrator (HPCS; 
+        ist_support @ hpc-sol.co.jp), with your SSH public
+        key attached.</font>  Please attach the public key file,
+      rather than copy-and-paste it in the text.
+    </li>
+    <li><font color=red>The admin replied to you but it bounced:</font>
+      This means you encountered an issue and asked the administrator,
+      but the reply from them bounced.  It seems that this happens
+      when your address is either outlook.com or hotmail.com.
+      If you think your issue is this,
+      <font color=blue>
+        Please send an Email to
+        the administrator (HPCS; 
+        ist_support @ hpc-sol.co.jp), with your alternative address
+        (just use your lab address).
+      </font> 
+    </li>
+  </ul>
+</div>
+
+<a name=what2> </a>
+<h2>What you should do when it says OK but you are still not able to login</h2>
+<div>
+  <p>
+  If you see OK in the column B
+  (which means we don't know what your issues are) but
+  you are still unable to login,
+  then <font color=blue>you should tell us what are your problem.</font>
+  </p>
+  <p>
+    Describe your issue fully in the column D.
+    Never mind that the cell is very small.  Write text in your editor
+    and paste it there.
+  </p>
+  <p>
+    If the description is vague, it would be useless and we cannot help you.
+    Try to write what you did in detail, so that we can be of a better help.
+    Try to make it detailed enough that we can do exactly the same thing.
+    <ul>
+      <li>OS (Windows? Mac? Linux?)</li>
+      <li>SSH client software (cygwin? teraterm? putty?)</li>
+      <li>The exact command line you typed or the exact
+        operation you performed on the client software</li>
+      <li>What you exactly saw. A pop-up dialogue? The error message?</li>
+    </ul>
+  </p>
+  <p>
+    After you fill the cell with your issues, please drop
+    an Email at the following two addresses:
+    <ul>
+      <li>HPCS: ist_support @ hpc-sol.co.jp</li>
+      <li>Taura: tau @ eidos.ic.i.u-tokyo.ac.jp</li>
+    </ul>
+    This is very important because at times the address we
+    received from you upon registration turns out to be wrong.
+    It is important to receive a message from you, so that
+    we can simply reply to you.
+  </p>
+</div>
+  
+<a name=common> </a>
+<h2>Common issues</h2>
+
+<a name=wrong_pub_key_format> </a>
+<h3>Wrong SSH public key format</h3>
+<div>
+  There are two types of SSH public key format.
+  See <a href="https://help.globalscape.com/help/archive/eft6-2/mergedprojects/eft/server_ssh_key_formats.htm">this page</a>, for example.
+  Please make sure you have sent a key in OpenSSH format.
+
+  If you use puttygen on Windows, you probably didn't.
+  
+  If you think you didn't,
+  <font color=blue>
+    Please send an Email to
+    the administrator (HPCS; 
+    ist_support @ hpc-sol.co.jp), with your SSH public
+    key in the OpenSSH format attached.</font>
+</div>
+
+<h3>I am using putty, how do I get my public key in OpenSSH format?</h3>
+<div>
+  <h4>Case 1: generate a fresh key pair</h4>
+  <div>
+    If you have never generated a key pair or you want to refresh a key pair anyways, run puttygen.exe and press the "generate" button.  Select the whole text that appears in a box below "Public key for pasting into OpenSSH authorized_keys file:" (you can do so by pressing Alt-p). After the text has been selected, right click on any part of the text and "copy" the selected text.   Paste it into any text file (suggested extension is ".pub") and save it.
+  </div>
+  <h4>Case 2: use an existing key pair</h4>
+  <div>
+    If you previously generated a key pair and want to continue using it, run puttygen.exe and press the "load" button.  Open the .ppk (private key) file you want to use.  Then a string appears in the box below "Public key for pasting into OpenSSH authorized_keys file:".  The remaining instruction is the same as Case 1.
+  </div>
+</div>
+
+<a name=new_to_putty> </a>
+<h3>I am new to putty, how to login to the cluster anyway?</h3>
+<div>
+  <ol>
+    <li>run PuTTY</li>
+    <li>in the left menu, select "Connection" -&gt; "SSH" -&gt "Auth"
+      item (you may have to expand submenus along the way by clicking "+").
+    </li>
+    <li>in the right pane ("Options controlling SSH authentication"),
+      press "Browse" button below "Pvivate key file for authentication"
+      and open the .ppk (private key) file you want to use.
+      The corresponding public key file must have been registered
+      (either from the user registration page or
+      via an Email to HPCS admins if you did not get it right
+      upon registration).
+    </li>
+    <li>then select "Session" from the left menu.  In
+      the "Host Name (or IP address)", put
+      the hostname or the IP address of the login node
+      (consult the IST cluster user manual or ask a friend
+      who trusts you).
+    </li>
+    <li>if a dialog shows up and says something like
+      host key is not cached, say "yes".
+    </li>
+    <li>another windows should appear and ask your user name.
+      put your user name on the cluster (e.g., u00067).
+    </li>
+    <li>that should be it!  you should see the prompt on the login node.
+    </li>
+  </ol>
+</div>
+
+</body>
+</html>
+

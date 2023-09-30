@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" / >
+<!-- <title></title> -->
+
+
+<style>
+body {counter-reset: h2}
+  h2 {counter-reset: h3}
+  h3 {counter-reset: h4}
+  h4 {counter-reset: h5}
+  h5 {counter-reset: h6}
+
+  h2:before {counter-increment: h2; content: counter(h2) ". "}
+  h3:before {counter-increment: h3; content: counter(h2) "." counter(h3) ". "}
+  h4:before {counter-increment: h4; content: counter(h2) "." counter(h3) "." counter(h4) ". "}
+  h5:before {counter-increment: h5; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "}
+  h6:before {counter-increment: h6; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "}
+
+  h2.nocount:before, h3.nocount:before, h4.nocount:before, h5.nocount:before, h6.nocount:before { content: ""; counter-increment: none } 
+
+h1 {
+  font-size   : 14pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #BBDDBB;
+}
+
+h2 {
+  font-size   : 13pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #CCEECC;
+}
+
+h3 {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #DDFFDD;
+}
+
+h4 {
+  font-size   : 10pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #FFFFFF;
+}
+
+div {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-color     : #99A1AA;
+}
+
+p {
+  font-size   : 12pt;
+  font-family : serif;
+  border-color     : #99A1AA;
+}
+
+pre {
+  background-color:#efe;
+}
+
+</style>
+</head>
+
+<body>
+
+  <h1 id="git">QA</h1>
+
+  <div>
+    Answers to questions I want to elaborate
+  </div>
+
+  
+  <h2>17 October, 2022</h2>
+  <div>
+    <p>
+      I will elaborate on the question I got from Kawahara-kun about task parallelism, which was indeed a good question.
+    </p>
+    <p>Q: 
+      <blockquote>
+        <i>Tasks not in ancestor-descendant relationships are not allowed to write to the same memory area, right? It seems hard to be careful with that when using tasks in a huge program.</i>
+      </blockquote>
+    </p>
+
+    <p>A:</p>
+
+    <p>Your first point (<i>"Tasks not in ancestor-descendant relationships are not allowed to write to the same memory area"</i>) is right.  Well, the restriction is even tighter than that. (a) even tasks that ARE in ancestor-descendant relationships are not allowed to write to the same memory area when they may run concurrently.  That is, if you have</p>
+    <pre>#pragma omp task
+  S              /* done by a child task */
+  T              /* done by the parent task */
+</pre>
+<p>    
+S and T may be run by different threads concurrently so they are not allowed to write to the same memory area (even if they are in an ancestor-descendant relationship).
+</p>
+<p>
+(b) another minor point is that it's not only that they are not allowed to WRITE to the same memory, but also that one is not allowed to READ from the same memory the other writes to concurrently.  For example, if T reads from a variable x and S writes to it, you are already in trouble.
+</p>
+<p>
+  I guess the real point was the second one (<i>"It seems hard to be careful with that when using tasks in a huge program."</i>), which is indeed a good point.
+</p>
+<p>
+You are right in that reasoning about the relationship between so many tasks is daunting, but in practice you don't have to think in this way, at least for programs that are in fact parallelizable.  
+</p>
+<p>
+For example, let's say you have a program like this.
+</p>
+<pre>f(A) {
+  ...
+
+#pragma omp task
+  f(B)
+#pragma omp task
+  f(C)
+#pragma omp taskwait
+  ...
+}
+</pre>
+
+<p>
+f(B) and f(C) may end up creating many many tasks recursively, so reasoning about the structure of these tasks and where each task accesses indeed sounds daunting.
+</p>
+
+<p>
+  Fortunately, you often do not have to think in this way --- all you have to make sure in this case is that f(B) and f(C) do not access the same memory area (which at least one of them writes to) and in many cases you have a good idea about whether this is the case <i>without knowing</i> how many tasks they end up creating, let alone their relationships.  It is especially true when you are actually "dividing" the work given from the above into subtasks.  After all, you know how you do what you are asked to do and divide the work into several subtasks to accomplish that.  You can reason about where a task and its all descendants are going to access without knowing what all descendants actually are.
+</p>
+
+<p>
+Let's make this point clearer using a quicksort as an example.  It normally takes an interval of the entire array you are sorting. e.g.,
+</p>
+
+<pre>
+qs(A, p, q) { // you are asked to sort A[p:q]
+  if (q - p is small) { sort_trivially(A, p, q); }
+  else {
+    pivot = choose_a_pivot(A, p, q);
+    r = partition(A, p, q, pivot);
+    // so A[p:r] &lt; pivot, A[r] = pivot, A[r+1,q] &gt;= pivot
+    qs(A, p, r);
+    qs(A, r + 1, q);
+  }
+}
+</pre>
+
+<p>
+  If you have some ideas about how this procedure works, you can easily deduce that qs(A, p, r) and qs(A, r + 1, q) do not access the same region.  You can do this NOT BECAUSE you have an idea about how many tasks will be created and how.  You can do it simply because of the fact that qs(A, p, q) sorts A[p:q] without accessing elements outside of it.  With this reasoning you can deduce that it is safe to do something like this.
+</p>
+
+<pre>
+qs(A, p, q) { // sort A[p:q]
+  if (q - p is small) { sort_trivially(A, p, q); }
+  else {
+    pivot = choose_a_pivot(A, p, q);
+    r = partition(A, p, q, pivot);
+    // so A[p:r] &lt; pivot, A[r] = pivot, A[r+1,q] &gt;= pivot
+#pragma omp task    
+    qs(A, p, r);
+#pragma omp task    
+    qs(A, r + 1, q);
+#pragma omp taskwait
+  }
+}
+</pre>
+
+<p>
+The point is that it's irrelevant how many tasks you end up creating inside qs(A, p, r) or qs(A, r + 1, q).  The only thing you have to know is qs(A, p, r) will access A[p:r] and not A[r+1:q] and vice versa.
+</p>
+
+<p>
+When you think it seems hard to do it for huge programs, you may be thinking something different, like creating a task that you don't even know what it's doing.  In these cases you'd better conclude you cannot parallelize it, no matter how you do it.  The only possibility you can run such tasks concurrently with the parent is that you protect access to all data structures that could possibly be accessed by multiple threads, by using locks or a similar primitive.  
+</p>
+    
+  </div>
+
+  <a name=oct31></a>
+  <h2>31 October, 2022</h2>
+  <div>
+    <p>Q: 
+      <blockquote>
+        <i>regarding the Assignment 1, when I measured the time taken for running a doubly nested loop without using collapse, regardless of the scheduling (static or dynamic), the run time was the same. This was after repeating the experiment multiple times. How does that happen?</i>
+      </blockquote>
+    </p>
+    <p>A: The definite answer can be given only by looking at your code.  Generally speaking the scheduling clause should affect performance in this case, as the time it takes to compute a single iteration of the outer loop you apply <tt>#pragma omp for</tt> to (which I assume is the loop running x from 0 to 1) varies depending on the value of x (the iteration for a larger x should finish more quickly than a smaller x).  Threads working on earlier iterations (smaller x's) should take longer than threads working on later iterations.  Whether the difference is noticeable or a margin of fluctuations is something we should think carefully in your situation (basically we are talking about how costly it is to do sqrt, compared to the computation you have to do always (i.e., 1 - x * x - y * y and checking if it is positive)), but in a quick experiment I just conducted, I confirmed that the schedule clause indeed changed the performance. 
+    </p>
+    <p>The reason why it does not happen in your code is something I can only guess without actually looking at your code.</p>
+    <p>Some advice: before comparing static and dynamic, you should make sure you observe a reasonable speedup by parallelization.
+      Unless you observe a reasonable speedup, the code may have some other issues that render the comparison among scheduling policies somewhat meaningless.
+      Play with the number of points you compute the integrand at and make sure a serial version takes at least a few seconds (for the purpose of experiment, you'd better have it take longer, say 10 seconds. in real applications, the number of points you evaluate the integrand at should be determined by the accuracy of the result you need).  
+    </p>
+    <p>Q:
+<blockquote>
+  <i>Isn’t there an out-of-array reference in code cuda_memcpy.cu? In function cuda_thread_fun, i takes values 0~11, but the size of array c_dev is only 10.</i>
+</blockquote>
+    </p>
+    <p>A: Yes, it was such a basic mistake I don't even know how I commit.  As I explained elsewhere during the talk, it should be
+<pre>__global__ void cuda_thread_fun(long long * p, int n) {
+  int i        = blockDim.x * blockIdx.x + threadIdx.x;
+  <font color="red">if (i &lt; n) {</font>
+    p[i] = clock64();
+  <font color="red">}</font>
+}
+</pre>
+Thank you for pointing that out.
+    </p>
+  </div>
+  
+</body>
+</html>
+
