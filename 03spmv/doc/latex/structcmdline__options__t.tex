@@ -1,0 +1,173 @@
+\hypertarget{structcmdline__options__t}{}\section{cmdline\+\_\+options\+\_\+t Struct Reference}
+\label{structcmdline__options__t}\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+
+
+command line option  
+
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} \hyperlink{structcmdline__options__t_aeb40f98dbcd53dc727b1d7dbb566924f}{M}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} \hyperlink{structcmdline__options__t_aa58f87808071259b5aa8f17c64bf2960}{N}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} \hyperlink{structcmdline__options__t_aec8f7846348926cda6d62023f62d0d25}{nnz}
+\item 
+long \hyperlink{structcmdline__options__t_acb60cada2976487316be88bf4309e7d6}{repeat}
+\item 
+char $\ast$ \hyperlink{structcmdline__options__t_a16fe2748dfda1fc639d7e3321eb0e4a9}{format\+\_\+str}
+\item 
+\hyperlink{spmv_8cc_a8c0094893526c01b430903b2d9227256}{sparse\+\_\+format\+\_\+t} \hyperlink{structcmdline__options__t_af8a99d8cdebe0bc5fd512d2254727231}{format}
+\item 
+char $\ast$ \hyperlink{structcmdline__options__t_a1669264b4602341b949007ca4336dfc2}{matrix\+\_\+type\+\_\+str}
+\item 
+\hyperlink{spmv_8cc_a43a568fb26bc32aeaad07769cc524c45}{sparse\+\_\+matrix\+\_\+type\+\_\+t} \hyperlink{structcmdline__options__t_abc77475ac02e2e93b9f978ea22cb6244}{matrix\+\_\+type}
+\item 
+char $\ast$ \hyperlink{structcmdline__options__t_ae8ab407cdc87a30c1b4cdf6b424c8370}{algo\+\_\+str}
+\item 
+\hyperlink{spmv_8cc_ad2cf0493af54bf76c5be68b4634fcab7}{spmv\+\_\+algo\+\_\+t} \hyperlink{structcmdline__options__t_afddf83f65e6e4a14761d84a5e876e6ac}{algo}
+\item 
+char $\ast$ \hyperlink{structcmdline__options__t_a2db02208284cd9664c88e6f0e7140d6d}{coo\+\_\+file}
+\item 
+char $\ast$ \hyperlink{structcmdline__options__t_a4ae2cfd5fda7a25e302fff37c1201f93}{rmat\+\_\+str}
+\item 
+double \hyperlink{structcmdline__options__t_a60e05c62d3fd439c03fd26d9f8078a4b}{rmat} \mbox{[}2\mbox{]}\mbox{[}2\mbox{]}
+\item 
+char $\ast$ \hyperlink{structcmdline__options__t_aa4b96337328846dd1d2c0ca8eee7933f}{dump}
+\item 
+long \hyperlink{structcmdline__options__t_a8034ee34658dd09267c9bdbd53050c9a}{dump\+\_\+points}
+\item 
+long \hyperlink{structcmdline__options__t_afa92e5953f8c49714b09ccdd12a1f8a7}{dump\+\_\+seed}
+\item 
+long \hyperlink{structcmdline__options__t_a065412d7cdc54cdae630389c3fda266e}{seed}
+\item 
+int \hyperlink{structcmdline__options__t_a25f9087b240da0b93a4295fa5f173c88}{error}
+\item 
+int \hyperlink{structcmdline__options__t_ab02741e43bb19900e87caaec3a8dd794}{help}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+command line option 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structcmdline__options__t_afddf83f65e6e4a14761d84a5e876e6ac}\label{structcmdline__options__t_afddf83f65e6e4a14761d84a5e876e6ac}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!algo@{algo}}
+\index{algo@{algo}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{algo}{algo}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_ad2cf0493af54bf76c5be68b4634fcab7}{spmv\+\_\+algo\+\_\+t} cmdline\+\_\+options\+\_\+t\+::algo}
+
+algo\+\_\+str converted to enum \mbox{\Hypertarget{structcmdline__options__t_ae8ab407cdc87a30c1b4cdf6b424c8370}\label{structcmdline__options__t_ae8ab407cdc87a30c1b4cdf6b424c8370}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!algo\+\_\+str@{algo\+\_\+str}}
+\index{algo\+\_\+str@{algo\+\_\+str}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{algo\+\_\+str}{algo\_str}}
+{\footnotesize\ttfamily char$\ast$ cmdline\+\_\+options\+\_\+t\+::algo\+\_\+str}
+
+algorithm string (serial, parallel, cuda) \mbox{\Hypertarget{structcmdline__options__t_a2db02208284cd9664c88e6f0e7140d6d}\label{structcmdline__options__t_a2db02208284cd9664c88e6f0e7140d6d}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!coo\+\_\+file@{coo\+\_\+file}}
+\index{coo\+\_\+file@{coo\+\_\+file}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{coo\+\_\+file}{coo\_file}}
+{\footnotesize\ttfamily char$\ast$ cmdline\+\_\+options\+\_\+t\+::coo\+\_\+file}
+
+file \mbox{\Hypertarget{structcmdline__options__t_aa4b96337328846dd1d2c0ca8eee7933f}\label{structcmdline__options__t_aa4b96337328846dd1d2c0ca8eee7933f}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!dump@{dump}}
+\index{dump@{dump}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{dump}{dump}}
+{\footnotesize\ttfamily char$\ast$ cmdline\+\_\+options\+\_\+t\+::dump}
+
+file name to dump image (gnuplot) data \mbox{\Hypertarget{structcmdline__options__t_a8034ee34658dd09267c9bdbd53050c9a}\label{structcmdline__options__t_a8034ee34658dd09267c9bdbd53050c9a}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!dump\+\_\+points@{dump\+\_\+points}}
+\index{dump\+\_\+points@{dump\+\_\+points}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{dump\+\_\+points}{dump\_points}}
+{\footnotesize\ttfamily long cmdline\+\_\+options\+\_\+t\+::dump\+\_\+points}
+
+max number of points in the dump data \mbox{\Hypertarget{structcmdline__options__t_afa92e5953f8c49714b09ccdd12a1f8a7}\label{structcmdline__options__t_afa92e5953f8c49714b09ccdd12a1f8a7}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!dump\+\_\+seed@{dump\+\_\+seed}}
+\index{dump\+\_\+seed@{dump\+\_\+seed}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{dump\+\_\+seed}{dump\_seed}}
+{\footnotesize\ttfamily long cmdline\+\_\+options\+\_\+t\+::dump\+\_\+seed}
+
+random number seed to randomly choose elements dumped \mbox{\Hypertarget{structcmdline__options__t_a25f9087b240da0b93a4295fa5f173c88}\label{structcmdline__options__t_a25f9087b240da0b93a4295fa5f173c88}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!error@{error}}
+\index{error@{error}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{error}{error}}
+{\footnotesize\ttfamily int cmdline\+\_\+options\+\_\+t\+::error}
+
+set when we encounter an error \mbox{\Hypertarget{structcmdline__options__t_af8a99d8cdebe0bc5fd512d2254727231}\label{structcmdline__options__t_af8a99d8cdebe0bc5fd512d2254727231}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!format@{format}}
+\index{format@{format}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{format}{format}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8c0094893526c01b430903b2d9227256}{sparse\+\_\+format\+\_\+t} cmdline\+\_\+options\+\_\+t\+::format}
+
+format\+\_\+str converted to enum \mbox{\Hypertarget{structcmdline__options__t_a16fe2748dfda1fc639d7e3321eb0e4a9}\label{structcmdline__options__t_a16fe2748dfda1fc639d7e3321eb0e4a9}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!format\+\_\+str@{format\+\_\+str}}
+\index{format\+\_\+str@{format\+\_\+str}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{format\+\_\+str}{format\_str}}
+{\footnotesize\ttfamily char$\ast$ cmdline\+\_\+options\+\_\+t\+::format\+\_\+str}
+
+format string (coo, coo\+\_\+sorted, csr) \mbox{\Hypertarget{structcmdline__options__t_ab02741e43bb19900e87caaec3a8dd794}\label{structcmdline__options__t_ab02741e43bb19900e87caaec3a8dd794}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!help@{help}}
+\index{help@{help}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{help}{help}}
+{\footnotesize\ttfamily int cmdline\+\_\+options\+\_\+t\+::help}
+
+set when -\/h / --help is given \mbox{\Hypertarget{structcmdline__options__t_aeb40f98dbcd53dc727b1d7dbb566924f}\label{structcmdline__options__t_aeb40f98dbcd53dc727b1d7dbb566924f}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!M@{M}}
+\index{M@{M}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{M}{M}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} cmdline\+\_\+options\+\_\+t\+::M}
+
+number of rows \mbox{\Hypertarget{structcmdline__options__t_abc77475ac02e2e93b9f978ea22cb6244}\label{structcmdline__options__t_abc77475ac02e2e93b9f978ea22cb6244}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!matrix\+\_\+type@{matrix\+\_\+type}}
+\index{matrix\+\_\+type@{matrix\+\_\+type}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{matrix\+\_\+type}{matrix\_type}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a43a568fb26bc32aeaad07769cc524c45}{sparse\+\_\+matrix\+\_\+type\+\_\+t} cmdline\+\_\+options\+\_\+t\+::matrix\+\_\+type}
+
+matrix\+\_\+type\+\_\+str converted to enum \mbox{\Hypertarget{structcmdline__options__t_a1669264b4602341b949007ca4336dfc2}\label{structcmdline__options__t_a1669264b4602341b949007ca4336dfc2}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!matrix\+\_\+type\+\_\+str@{matrix\+\_\+type\+\_\+str}}
+\index{matrix\+\_\+type\+\_\+str@{matrix\+\_\+type\+\_\+str}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{matrix\+\_\+type\+\_\+str}{matrix\_type\_str}}
+{\footnotesize\ttfamily char$\ast$ cmdline\+\_\+options\+\_\+t\+::matrix\+\_\+type\+\_\+str}
+
+matrix type (random, rmat, file) \mbox{\Hypertarget{structcmdline__options__t_aa58f87808071259b5aa8f17c64bf2960}\label{structcmdline__options__t_aa58f87808071259b5aa8f17c64bf2960}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!N@{N}}
+\index{N@{N}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{N}{N}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} cmdline\+\_\+options\+\_\+t\+::N}
+
+number of columns \mbox{\Hypertarget{structcmdline__options__t_aec8f7846348926cda6d62023f62d0d25}\label{structcmdline__options__t_aec8f7846348926cda6d62023f62d0d25}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!nnz@{nnz}}
+\index{nnz@{nnz}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{nnz}{nnz}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} cmdline\+\_\+options\+\_\+t\+::nnz}
+
+number of non-\/zero elements \mbox{\Hypertarget{structcmdline__options__t_acb60cada2976487316be88bf4309e7d6}\label{structcmdline__options__t_acb60cada2976487316be88bf4309e7d6}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!repeat@{repeat}}
+\index{repeat@{repeat}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{repeat}{repeat}}
+{\footnotesize\ttfamily long cmdline\+\_\+options\+\_\+t\+::repeat}
+
+number of iterations (tA (Ax)) \mbox{\Hypertarget{structcmdline__options__t_a60e05c62d3fd439c03fd26d9f8078a4b}\label{structcmdline__options__t_a60e05c62d3fd439c03fd26d9f8078a4b}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!rmat@{rmat}}
+\index{rmat@{rmat}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{rmat}{rmat}}
+{\footnotesize\ttfamily double cmdline\+\_\+options\+\_\+t\+::rmat\mbox{[}2\mbox{]}\mbox{[}2\mbox{]}}
+
+\{ \{ a, b \}, \{ c, d \} \} probability of rmat \mbox{\Hypertarget{structcmdline__options__t_a4ae2cfd5fda7a25e302fff37c1201f93}\label{structcmdline__options__t_a4ae2cfd5fda7a25e302fff37c1201f93}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!rmat\+\_\+str@{rmat\+\_\+str}}
+\index{rmat\+\_\+str@{rmat\+\_\+str}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{rmat\+\_\+str}{rmat\_str}}
+{\footnotesize\ttfamily char$\ast$ cmdline\+\_\+options\+\_\+t\+::rmat\+\_\+str}
+
+a,b,c,d probability of rmat \mbox{\Hypertarget{structcmdline__options__t_a065412d7cdc54cdae630389c3fda266e}\label{structcmdline__options__t_a065412d7cdc54cdae630389c3fda266e}} 
+\index{cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}!seed@{seed}}
+\index{seed@{seed}!cmdline\+\_\+options\+\_\+t@{cmdline\+\_\+options\+\_\+t}}
+\subsubsection{\texorpdfstring{seed}{seed}}
+{\footnotesize\ttfamily long cmdline\+\_\+options\+\_\+t\+::seed}
+
+random number generator seed 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/\hyperlink{spmv_8cc}{spmv.\+cc}\end{DoxyCompactItemize}

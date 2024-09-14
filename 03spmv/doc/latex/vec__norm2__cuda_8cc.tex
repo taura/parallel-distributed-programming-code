@@ -1,0 +1,58 @@
+\hypertarget{vec__norm2__cuda_8cc}{}\section{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/vec\+\_\+norm2\+\_\+cuda.cc File Reference}
+\label{vec__norm2__cuda_8cc}\index{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/vec\+\_\+norm2\+\_\+cuda.\+cc@{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/vec\+\_\+norm2\+\_\+cuda.\+cc}}
+
+
+the device procedure to do vec\+\_\+norm2 on the device  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \hyperlink{vec__norm2__cuda_8cc_afe19da671b9e7b759c966363ebff039c}{vec\+\_\+norm2\+\_\+dev} (\hyperlink{structvec__t}{vec\+\_\+t} v, \hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} $\ast$s)
+\begin{DoxyCompactList}\small\item\em the device procedure to do vec\+\_\+norm2 on the device \end{DoxyCompactList}\item 
+static \hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} \hyperlink{vec__norm2__cuda_8cc_a7dd3cfc8a09a071082c08d902a4ee7bc}{vec\+\_\+norm2\+\_\+cuda} (\hyperlink{structvec__t}{vec\+\_\+t} v)
+\begin{DoxyCompactList}\small\item\em square norm of a vector in parallel with cuda \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+the device procedure to do vec\+\_\+norm2 on the device 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{vec__norm2__cuda_8cc_a7dd3cfc8a09a071082c08d902a4ee7bc}\label{vec__norm2__cuda_8cc_a7dd3cfc8a09a071082c08d902a4ee7bc}} 
+\index{vec\+\_\+norm2\+\_\+cuda.\+cc@{vec\+\_\+norm2\+\_\+cuda.\+cc}!vec\+\_\+norm2\+\_\+cuda@{vec\+\_\+norm2\+\_\+cuda}}
+\index{vec\+\_\+norm2\+\_\+cuda@{vec\+\_\+norm2\+\_\+cuda}!vec\+\_\+norm2\+\_\+cuda.\+cc@{vec\+\_\+norm2\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{vec\+\_\+norm2\+\_\+cuda()}{vec\_norm2\_cuda()}}
+{\footnotesize\ttfamily static \hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} vec\+\_\+norm2\+\_\+cuda (\begin{DoxyParamCaption}\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+square norm of a vector in parallel with cuda 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (v)} & a vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the square norm of v (v\mbox{[}0\mbox{]}$^\wedge$2 + ... + v\mbox{[}n-\/1\mbox{]}$^\wedge$2) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{vec__norm2__cuda_8cc_afe19da671b9e7b759c966363ebff039c}\label{vec__norm2__cuda_8cc_afe19da671b9e7b759c966363ebff039c}} 
+\index{vec\+\_\+norm2\+\_\+cuda.\+cc@{vec\+\_\+norm2\+\_\+cuda.\+cc}!vec\+\_\+norm2\+\_\+dev@{vec\+\_\+norm2\+\_\+dev}}
+\index{vec\+\_\+norm2\+\_\+dev@{vec\+\_\+norm2\+\_\+dev}!vec\+\_\+norm2\+\_\+cuda.\+cc@{vec\+\_\+norm2\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{vec\+\_\+norm2\+\_\+dev()}{vec\_norm2\_dev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void vec\+\_\+norm2\+\_\+dev (\begin{DoxyParamCaption}\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{v,  }\item[{\hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} $\ast$}]{s }\end{DoxyParamCaption})}
+
+
+
+the device procedure to do vec\+\_\+norm2 on the device 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (v)} & a vector \\
+\hline
+{\em (s)} & a pointer to a device memory to put the result into\\
+\hline
+\end{DoxyParams}
+assume v.\+elems\+\_\+dev already set and s a proper pointer to a device memory 

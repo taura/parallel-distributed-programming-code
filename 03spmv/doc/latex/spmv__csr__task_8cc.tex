@@ -1,0 +1,49 @@
+\hypertarget{spmv__csr__task_8cc}{}\section{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+csr\+\_\+task.cc File Reference}
+\label{spmv__csr__task_8cc}\index{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+csr\+\_\+task.\+cc@{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+csr\+\_\+task.\+cc}}
+
+
+y = A $\ast$ x for csr with tasks  
+
+
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=262pt]{spmv__csr__task_8cc__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static int \hyperlink{spmv__csr__task_8cc_a3c9bfaecd18fdbead39a82c8b703efa8}{spmv\+\_\+csr\+\_\+task} (\hyperlink{structsparse__t}{sparse\+\_\+t} A, \hyperlink{structvec__t}{vec\+\_\+t} vx, \hyperlink{structvec__t}{vec\+\_\+t} vy)
+\begin{DoxyCompactList}\small\item\em y = A $\ast$ x for csr with tasks \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+y = A $\ast$ x for csr with tasks 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{spmv__csr__task_8cc_a3c9bfaecd18fdbead39a82c8b703efa8}\label{spmv__csr__task_8cc_a3c9bfaecd18fdbead39a82c8b703efa8}} 
+\index{spmv\+\_\+csr\+\_\+task.\+cc@{spmv\+\_\+csr\+\_\+task.\+cc}!spmv\+\_\+csr\+\_\+task@{spmv\+\_\+csr\+\_\+task}}
+\index{spmv\+\_\+csr\+\_\+task@{spmv\+\_\+csr\+\_\+task}!spmv\+\_\+csr\+\_\+task.\+cc@{spmv\+\_\+csr\+\_\+task.\+cc}}
+\subsubsection{\texorpdfstring{spmv\+\_\+csr\+\_\+task()}{spmv\_csr\_task()}}
+{\footnotesize\ttfamily static int spmv\+\_\+csr\+\_\+task (\begin{DoxyParamCaption}\item[{\hyperlink{structsparse__t}{sparse\+\_\+t}}]{A,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vx,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vy }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+y = A $\ast$ x for csr with tasks 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (\+A)} & a sparse matrix \\
+\hline
+{\em (vx)} & a vector \\
+\hline
+{\em (vy)} & a vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if succeed, 0 if failed 
+\end{DoxyReturn}

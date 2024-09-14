@@ -1,0 +1,83 @@
+\hypertarget{spmv__coo__cuda_8cc}{}\section{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+coo\+\_\+cuda.cc File Reference}
+\label{spmv__coo__cuda_8cc}\index{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+coo\+\_\+cuda.\+cc@{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+coo\+\_\+cuda.\+cc}}
+
+
+y = A $\ast$ x for coo with cuda  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \hyperlink{spmv__coo__cuda_8cc_a38bf40a7fad355ba53f168a00c1f6b5a}{init\+\_\+const\+\_\+dev} (\hyperlink{structvec__t}{vec\+\_\+t} v, \hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} c)
+\begin{DoxyCompactList}\small\item\em the device procedure to initialize all elements of v with a constant c \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \hyperlink{spmv__coo__cuda_8cc_aa8b36d14695c5599ff6a2e724711101f}{spmv\+\_\+coo\+\_\+dev} (\hyperlink{structsparse__t}{sparse\+\_\+t} A, \hyperlink{structvec__t}{vec\+\_\+t} vx, \hyperlink{structvec__t}{vec\+\_\+t} vy)
+\begin{DoxyCompactList}\small\item\em the device procedure to do spmv in coo format \end{DoxyCompactList}\item 
+static int \hyperlink{spmv__coo__cuda_8cc_a0f69fc3347f24b8d0dff47851ba19aa4}{spmv\+\_\+coo\+\_\+cuda} (\hyperlink{structsparse__t}{sparse\+\_\+t} A, \hyperlink{structvec__t}{vec\+\_\+t} vx, \hyperlink{structvec__t}{vec\+\_\+t} vy)
+\begin{DoxyCompactList}\small\item\em y = A $\ast$ x for coo with cuda \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+y = A $\ast$ x for coo with cuda 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{spmv__coo__cuda_8cc_a38bf40a7fad355ba53f168a00c1f6b5a}\label{spmv__coo__cuda_8cc_a38bf40a7fad355ba53f168a00c1f6b5a}} 
+\index{spmv\+\_\+coo\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+cuda.\+cc}!init\+\_\+const\+\_\+dev@{init\+\_\+const\+\_\+dev}}
+\index{init\+\_\+const\+\_\+dev@{init\+\_\+const\+\_\+dev}!spmv\+\_\+coo\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{init\+\_\+const\+\_\+dev()}{init\_const\_dev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void init\+\_\+const\+\_\+dev (\begin{DoxyParamCaption}\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{v,  }\item[{\hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real}}]{c }\end{DoxyParamCaption})}
+
+
+
+the device procedure to initialize all elements of v with a constant c 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (v)} & a vector \\
+\hline
+{\em (c)} & the value to initialize all v\textquotesingle{}s elements with \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{spmv__coo__cuda_8cc_a0f69fc3347f24b8d0dff47851ba19aa4}\label{spmv__coo__cuda_8cc_a0f69fc3347f24b8d0dff47851ba19aa4}} 
+\index{spmv\+\_\+coo\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+cuda.\+cc}!spmv\+\_\+coo\+\_\+cuda@{spmv\+\_\+coo\+\_\+cuda}}
+\index{spmv\+\_\+coo\+\_\+cuda@{spmv\+\_\+coo\+\_\+cuda}!spmv\+\_\+coo\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{spmv\+\_\+coo\+\_\+cuda()}{spmv\_coo\_cuda()}}
+{\footnotesize\ttfamily static int spmv\+\_\+coo\+\_\+cuda (\begin{DoxyParamCaption}\item[{\hyperlink{structsparse__t}{sparse\+\_\+t}}]{A,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vx,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vy }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+y = A $\ast$ x for coo with cuda 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (\+A)} & a sparse matrix in coo format \\
+\hline
+{\em (vx)} & a vector \\
+\hline
+{\em (vy)} & a vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if succeed, 0 if failed 
+\end{DoxyReturn}
+\mbox{\Hypertarget{spmv__coo__cuda_8cc_aa8b36d14695c5599ff6a2e724711101f}\label{spmv__coo__cuda_8cc_aa8b36d14695c5599ff6a2e724711101f}} 
+\index{spmv\+\_\+coo\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+cuda.\+cc}!spmv\+\_\+coo\+\_\+dev@{spmv\+\_\+coo\+\_\+dev}}
+\index{spmv\+\_\+coo\+\_\+dev@{spmv\+\_\+coo\+\_\+dev}!spmv\+\_\+coo\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{spmv\+\_\+coo\+\_\+dev()}{spmv\_coo\_dev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void spmv\+\_\+coo\+\_\+dev (\begin{DoxyParamCaption}\item[{\hyperlink{structsparse__t}{sparse\+\_\+t}}]{A,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vx,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vy }\end{DoxyParamCaption})}
+
+
+
+the device procedure to do spmv in coo format 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (\+A)} & a sparse matrix \\
+\hline
+{\em (vx)} & a vector \\
+\hline
+{\em (vy)} & a vector\\
+\hline
+\end{DoxyParams}
+assume A, vx, vy must have their elems\+\_\+dev already set. 

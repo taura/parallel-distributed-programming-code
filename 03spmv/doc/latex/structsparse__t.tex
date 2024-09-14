@@ -1,0 +1,83 @@
+\hypertarget{structsparse__t}{}\section{sparse\+\_\+t Struct Reference}
+\label{structsparse__t}\index{sparse\+\_\+t@{sparse\+\_\+t}}
+
+
+sparse matrix (in any format)  
+
+
+
+
+Collaboration diagram for sparse\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=230pt]{structsparse__t__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{spmv_8cc_a8c0094893526c01b430903b2d9227256}{sparse\+\_\+format\+\_\+t} \hyperlink{structsparse__t_a1bb9e61c965f9ea814aab21f7ff77a73}{format}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} \hyperlink{structsparse__t_a8a08bd7a16c76180afccf05e28f72a93}{M}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} \hyperlink{structsparse__t_a418c6deef17a60f31ff11182ea94f85a}{N}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} \hyperlink{structsparse__t_ae982d138f3904323b65975769b045a3f}{nnz}
+\item 
+\mbox{\Hypertarget{structsparse__t_a4d180146ce4a12b0d990cf0e803f7e64}\label{structsparse__t_a4d180146ce4a12b0d990cf0e803f7e64}} 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>\hyperlink{structcoo__t}{coo\_t} \hyperlink{structsparse__t_ad0391f2782f49ea2eb248ed255e9d732}{coo}\\
+\>\hyperlink{structcsr__t}{csr\_t} \hyperlink{structsparse__t_a68a71613181b0380d0d4d871236b2521}{csr}\\
+\}; \\
+
+\end{tabbing}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+sparse matrix (in any format) 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structsparse__t_ad0391f2782f49ea2eb248ed255e9d732}\label{structsparse__t_ad0391f2782f49ea2eb248ed255e9d732}} 
+\index{sparse\+\_\+t@{sparse\+\_\+t}!coo@{coo}}
+\index{coo@{coo}!sparse\+\_\+t@{sparse\+\_\+t}}
+\subsubsection{\texorpdfstring{coo}{coo}}
+{\footnotesize\ttfamily \hyperlink{structcoo__t}{coo\+\_\+t} sparse\+\_\+t\+::coo}
+
+coo or sorted coo \mbox{\Hypertarget{structsparse__t_a68a71613181b0380d0d4d871236b2521}\label{structsparse__t_a68a71613181b0380d0d4d871236b2521}} 
+\index{sparse\+\_\+t@{sparse\+\_\+t}!csr@{csr}}
+\index{csr@{csr}!sparse\+\_\+t@{sparse\+\_\+t}}
+\subsubsection{\texorpdfstring{csr}{csr}}
+{\footnotesize\ttfamily \hyperlink{structcsr__t}{csr\+\_\+t} sparse\+\_\+t\+::csr}
+
+csr \mbox{\Hypertarget{structsparse__t_a1bb9e61c965f9ea814aab21f7ff77a73}\label{structsparse__t_a1bb9e61c965f9ea814aab21f7ff77a73}} 
+\index{sparse\+\_\+t@{sparse\+\_\+t}!format@{format}}
+\index{format@{format}!sparse\+\_\+t@{sparse\+\_\+t}}
+\subsubsection{\texorpdfstring{format}{format}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8c0094893526c01b430903b2d9227256}{sparse\+\_\+format\+\_\+t} sparse\+\_\+t\+::format}
+
+format \mbox{\Hypertarget{structsparse__t_a8a08bd7a16c76180afccf05e28f72a93}\label{structsparse__t_a8a08bd7a16c76180afccf05e28f72a93}} 
+\index{sparse\+\_\+t@{sparse\+\_\+t}!M@{M}}
+\index{M@{M}!sparse\+\_\+t@{sparse\+\_\+t}}
+\subsubsection{\texorpdfstring{M}{M}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} sparse\+\_\+t\+::M}
+
+number of rows \mbox{\Hypertarget{structsparse__t_a418c6deef17a60f31ff11182ea94f85a}\label{structsparse__t_a418c6deef17a60f31ff11182ea94f85a}} 
+\index{sparse\+\_\+t@{sparse\+\_\+t}!N@{N}}
+\index{N@{N}!sparse\+\_\+t@{sparse\+\_\+t}}
+\subsubsection{\texorpdfstring{N}{N}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} sparse\+\_\+t\+::N}
+
+number of columns \mbox{\Hypertarget{structsparse__t_ae982d138f3904323b65975769b045a3f}\label{structsparse__t_ae982d138f3904323b65975769b045a3f}} 
+\index{sparse\+\_\+t@{sparse\+\_\+t}!nnz@{nnz}}
+\index{nnz@{nnz}!sparse\+\_\+t@{sparse\+\_\+t}}
+\subsubsection{\texorpdfstring{nnz}{nnz}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} sparse\+\_\+t\+::nnz}
+
+number of non-\/zeros 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/\hyperlink{spmv_8cc}{spmv.\+cc}\end{DoxyCompactItemize}

@@ -1,0 +1,41 @@
+\hypertarget{coo__to__dev_8cc}{}\section{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/coo\+\_\+to\+\_\+dev.cc File Reference}
+\label{coo__to__dev_8cc}\index{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/coo\+\_\+to\+\_\+dev.\+cc@{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/coo\+\_\+to\+\_\+dev.\+cc}}
+
+
+make a deivce copy of a sparse matrix in coo format  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static int \hyperlink{coo__to__dev_8cc_ab0c33415be097ee3c3d142d348d656c3}{coo\+\_\+to\+\_\+dev} (\hyperlink{structsparse__t}{sparse\+\_\+t} \&A)
+\begin{DoxyCompactList}\small\item\em make a deivce copy of a sparse matrix in coo format. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+make a deivce copy of a sparse matrix in coo format 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{coo__to__dev_8cc_ab0c33415be097ee3c3d142d348d656c3}\label{coo__to__dev_8cc_ab0c33415be097ee3c3d142d348d656c3}} 
+\index{coo\+\_\+to\+\_\+dev.\+cc@{coo\+\_\+to\+\_\+dev.\+cc}!coo\+\_\+to\+\_\+dev@{coo\+\_\+to\+\_\+dev}}
+\index{coo\+\_\+to\+\_\+dev@{coo\+\_\+to\+\_\+dev}!coo\+\_\+to\+\_\+dev.\+cc@{coo\+\_\+to\+\_\+dev.\+cc}}
+\subsubsection{\texorpdfstring{coo\+\_\+to\+\_\+dev()}{coo\_to\_dev()}}
+{\footnotesize\ttfamily static int coo\+\_\+to\+\_\+dev (\begin{DoxyParamCaption}\item[{\hyperlink{structsparse__t}{sparse\+\_\+t} \&}]{A }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+make a deivce copy of a sparse matrix in coo format. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (\+A)} & the reference to a matrix whose elems\+\_\+dev has not been set (i.\+e., = N\+U\+LL) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if succeed. 0 if failed.
+\end{DoxyReturn}
+this function allocates memory on the device and transfers A\textquotesingle{}s non-\/zero elements in the allocated memory. it also should set A\textquotesingle{}s elems\+\_\+dev to the address of the allocated memory, so that if you pass A as an argument of a kernel launch, the device code can obtain all necessary information of A from the parameter. \begin{DoxySeeAlso}{See also}
+sparse\+\_\+to\+\_\+dev 
+\end{DoxySeeAlso}

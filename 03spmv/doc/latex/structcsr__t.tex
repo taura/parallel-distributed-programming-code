@@ -1,0 +1,46 @@
+\hypertarget{structcsr__t}{}\section{csr\+\_\+t Struct Reference}
+\label{structcsr__t}\index{csr\+\_\+t@{csr\+\_\+t}}
+
+
+sparse matrix in compressed row format  
+
+
+
+
+Collaboration diagram for csr\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=145pt]{structcsr__t__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t} $\ast$ \hyperlink{structcsr__t_ac52d7a1ff3a054e2b8c7fcc706e525b6}{row\+\_\+start}
+\item 
+\hyperlink{structcsr__elem__t}{csr\+\_\+elem\+\_\+t} $\ast$ \hyperlink{structcsr__t_a8fda532ad93e6820aad02feac6bbe04b}{elems}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+sparse matrix in compressed row format 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structcsr__t_a8fda532ad93e6820aad02feac6bbe04b}\label{structcsr__t_a8fda532ad93e6820aad02feac6bbe04b}} 
+\index{csr\+\_\+t@{csr\+\_\+t}!elems@{elems}}
+\index{elems@{elems}!csr\+\_\+t@{csr\+\_\+t}}
+\subsubsection{\texorpdfstring{elems}{elems}}
+{\footnotesize\ttfamily \hyperlink{structcsr__elem__t}{csr\+\_\+elem\+\_\+t}$\ast$ csr\+\_\+t\+::elems}
+
+elements array \mbox{\Hypertarget{structcsr__t_ac52d7a1ff3a054e2b8c7fcc706e525b6}\label{structcsr__t_ac52d7a1ff3a054e2b8c7fcc706e525b6}} 
+\index{csr\+\_\+t@{csr\+\_\+t}!row\+\_\+start@{row\+\_\+start}}
+\index{row\+\_\+start@{row\+\_\+start}!csr\+\_\+t@{csr\+\_\+t}}
+\subsubsection{\texorpdfstring{row\+\_\+start}{row\_start}}
+{\footnotesize\ttfamily \hyperlink{spmv_8cc_a8e93478a00e685bea5e6a3f617bf03a3}{idx\+\_\+t}$\ast$ csr\+\_\+t\+::row\+\_\+start}
+
+elems\mbox{[}row\+\_\+start\mbox{[}i\mbox{]}\mbox{]} is the first element of row i 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/\hyperlink{spmv_8cc}{spmv.\+cc}\end{DoxyCompactItemize}

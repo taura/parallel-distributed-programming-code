@@ -1,0 +1,7 @@
+<map id="blocked_sparse" name="blocked_sparse">
+<area shape="rect" id="node2" href="$structsparse__t.html" title="sparse matrix (in any format) " alt="" coords="61,184,133,211"/>
+<area shape="rect" id="node3" href="$structcsr__t.html" title="sparse matrix in compressed row format " alt="" coords="33,95,83,121"/>
+<area shape="rect" id="node4" href="$structcsr__elem__t.html" title="an element of compressed sparse row " alt="" coords="5,5,92,32"/>
+<area shape="rect" id="node5" href="$structcoo__t.html" title="sparse matrix in coodinate list format " alt="" coords="125,95,180,121"/>
+<area shape="rect" id="node6" href="$structcoo__elem__t.html" title="an element of coordinate list (i, j, a) " alt="" coords="116,5,205,32"/>
+</map>

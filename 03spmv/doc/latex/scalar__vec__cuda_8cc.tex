@@ -1,0 +1,57 @@
+\hypertarget{scalar__vec__cuda_8cc}{}\section{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/scalar\+\_\+vec\+\_\+cuda.cc File Reference}
+\label{scalar__vec__cuda_8cc}\index{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/scalar\+\_\+vec\+\_\+cuda.\+cc@{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/scalar\+\_\+vec\+\_\+cuda.\+cc}}
+
+
+scalar x vector multiply with cuda  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \hyperlink{scalar__vec__cuda_8cc_a34eb85affb310250923e68a6c7ae361f}{scalar\+\_\+vec\+\_\+dev} (\hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} k, \hyperlink{structvec__t}{vec\+\_\+t} v)
+\begin{DoxyCompactList}\small\item\em the device procedure for k x v in parallel with cuda \end{DoxyCompactList}\item 
+static int \hyperlink{scalar__vec__cuda_8cc_a79a39db6a0400b471d1a5922696cf476}{scalar\+\_\+vec\+\_\+cuda} (\hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real} k, \hyperlink{structvec__t}{vec\+\_\+t} v)
+\begin{DoxyCompactList}\small\item\em k x v in parallel with cuda \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+scalar x vector multiply with cuda 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{scalar__vec__cuda_8cc_a79a39db6a0400b471d1a5922696cf476}\label{scalar__vec__cuda_8cc_a79a39db6a0400b471d1a5922696cf476}} 
+\index{scalar\+\_\+vec\+\_\+cuda.\+cc@{scalar\+\_\+vec\+\_\+cuda.\+cc}!scalar\+\_\+vec\+\_\+cuda@{scalar\+\_\+vec\+\_\+cuda}}
+\index{scalar\+\_\+vec\+\_\+cuda@{scalar\+\_\+vec\+\_\+cuda}!scalar\+\_\+vec\+\_\+cuda.\+cc@{scalar\+\_\+vec\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{scalar\+\_\+vec\+\_\+cuda()}{scalar\_vec\_cuda()}}
+{\footnotesize\ttfamily static int scalar\+\_\+vec\+\_\+cuda (\begin{DoxyParamCaption}\item[{\hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real}}]{k,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+k x v in parallel with cuda 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (k)} & a scalar \\
+\hline
+{\em (v)} & a vector\\
+\hline
+\end{DoxyParams}
+multiply each element of v by k \mbox{\Hypertarget{scalar__vec__cuda_8cc_a34eb85affb310250923e68a6c7ae361f}\label{scalar__vec__cuda_8cc_a34eb85affb310250923e68a6c7ae361f}} 
+\index{scalar\+\_\+vec\+\_\+cuda.\+cc@{scalar\+\_\+vec\+\_\+cuda.\+cc}!scalar\+\_\+vec\+\_\+dev@{scalar\+\_\+vec\+\_\+dev}}
+\index{scalar\+\_\+vec\+\_\+dev@{scalar\+\_\+vec\+\_\+dev}!scalar\+\_\+vec\+\_\+cuda.\+cc@{scalar\+\_\+vec\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{scalar\+\_\+vec\+\_\+dev()}{scalar\_vec\_dev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void scalar\+\_\+vec\+\_\+dev (\begin{DoxyParamCaption}\item[{\hyperlink{spmv_8cc_a11d147c64891830c9e79b3315b1b2e21}{real}}]{k,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{v }\end{DoxyParamCaption})}
+
+
+
+the device procedure for k x v in parallel with cuda 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (k)} & a scalar \\
+\hline
+{\em (v)} & a vector\\
+\hline
+\end{DoxyParams}
+multiply each element of v by k 

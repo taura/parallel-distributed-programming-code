@@ -1,0 +1,42 @@
+\hypertarget{spmv__coo__sorted__cuda_8cc}{}\section{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.cc File Reference}
+\label{spmv__coo__sorted__cuda_8cc}\index{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.\+cc@{/home/tau/public\+\_\+html/lecture/parallel\+\_\+distributed/2018/handson/tau/parallel-\/distributed-\/handson/03spmv/include/spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.\+cc}}
+
+
+y = A $\ast$ x for coo\+\_\+sorted with cuda  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static int \hyperlink{spmv__coo__sorted__cuda_8cc_a0c7f09dff7ec7a603acd26a19a44450d}{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda} (\hyperlink{structsparse__t}{sparse\+\_\+t} A, \hyperlink{structvec__t}{vec\+\_\+t} vx, \hyperlink{structvec__t}{vec\+\_\+t} vy)
+\begin{DoxyCompactList}\small\item\em y = A $\ast$ x for coo\+\_\+sorted with cuda \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+y = A $\ast$ x for coo\+\_\+sorted with cuda 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{spmv__coo__sorted__cuda_8cc_a0c7f09dff7ec7a603acd26a19a44450d}\label{spmv__coo__sorted__cuda_8cc_a0c7f09dff7ec7a603acd26a19a44450d}} 
+\index{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.\+cc}!spmv\+\_\+coo\+\_\+sorted\+\_\+cuda@{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda}}
+\index{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda@{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda}!spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.\+cc@{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda.\+cc}}
+\subsubsection{\texorpdfstring{spmv\+\_\+coo\+\_\+sorted\+\_\+cuda()}{spmv\_coo\_sorted\_cuda()}}
+{\footnotesize\ttfamily static int spmv\+\_\+coo\+\_\+sorted\+\_\+cuda (\begin{DoxyParamCaption}\item[{\hyperlink{structsparse__t}{sparse\+\_\+t}}]{A,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vx,  }\item[{\hyperlink{structvec__t}{vec\+\_\+t}}]{vy }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+y = A $\ast$ x for coo\+\_\+sorted with cuda 
+
+
+\begin{DoxyParams}{Parameters}
+{\em (\+A)} & a sparse matrix \\
+\hline
+{\em (vx)} & a vector \\
+\hline
+{\em (vy)} & a vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if succeed, 0 if failed 
+\end{DoxyReturn}

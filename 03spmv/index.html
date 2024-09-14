@@ -1,0 +1,1390 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" / >
+<title>SpMV hands-on instructions</title>
+
+
+<style>
+body {counter-reset: h2}
+  h2 {counter-reset: h3}
+  h3 {counter-reset: h4}
+  h4 {counter-reset: h5}
+  h5 {counter-reset: h6}
+
+  h2:before {counter-increment: h2; content: counter(h2) ". "}
+  h3:before {counter-increment: h3; content: counter(h2) "." counter(h3) ". "}
+  h4:before {counter-increment: h4; content: counter(h2) "." counter(h3) "." counter(h4) ". "}
+  h5:before {counter-increment: h5; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "}
+  h6:before {counter-increment: h6; content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "}
+
+  h2.nocount:before, h3.nocount:before, h4.nocount:before, h5.nocount:before, h6.nocount:before { content: ""; counter-increment: none } 
+
+h1 {
+  font-size   : 14pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #BBDDBB;
+}
+
+h2 {
+  font-size   : 13pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 15pt ;
+   
+  border-color     : #99A1AA;
+  background-color : #CCEECC;
+}
+
+h3 {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #DDFFDD;
+}
+
+h4 {
+  font-size   : 10pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-style     : solid;
+  border-width     : 1pt 1pt 0pt 1pt;
+  border-color     : #99A1AA;
+  background-color : #FFFFFF;
+}
+
+div {
+  font-size   : 12pt;
+  font-family : serif;
+  margin      : 10pt;
+  padding     : 3pt 20pt;
+  border-color     : #99A1AA;
+}
+
+p {
+  font-size   : 12pt;
+  font-family : serif;
+  border-color     : #99A1AA;
+}
+
+pre {
+  background-color:#efe;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>SpMV hands-on instructions</h1>
+
+<a name=toc> </a>
+<h2>Table of Contents</h2>
+<div>
+  <ul>
+    <li><a href="#fork">Fork the code to get your own repository</a></li>
+    <li><a href="#clone">Clone your repository</a></li>
+    <li><a href="#roadmap">The roadmap</a></li>
+    <li><a href="#play-with-it">Play with it</a></li>
+    <li><a href="#structure">How the code is structured</a></li>
+    <li><a href="#ex1">Exercise 1</a></li>
+    <li><a href="#ex2">Exercise 2</a></li>
+    <li><a href="#ex3">Exercise 3</a></li>
+    <li><a href="#ex4">Exercise 4</a></li>
+    <li><a href="#ex5">Optional Exercise 5</a></li>
+    <li><a href="#ex6">Optional Exercise 6</a></li>
+    <li><a href="#ex7">Optional Exercise 7 <font color=red>(new Nov. 19)</font></a></li>
+    <li><a href="#ex8">Challenging Optional Exercise 8 <font color=red>(new Nov. 19)</font></a></li>
+    <li><a href="#submit">Submit Your Work <font color=red>(new Nov. 19)</font></a></li>
+    <li><a href="#gitlab-ssh">Register your SSH key to the gitlab server</a></li>
+    <li><a href="#name=fetch">Getting updates on hands-on material</a></li>
+  </ul>
+</div>
+
+
+<a name=fork> </a>
+<h2>Fork the code to get your own repository</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <p><i><font color=red>Everybody needs to do this.</font>
+      Instructions have been updated since the last week, so that I can
+      track your code easily and you can easily transfer you code between your laptop
+      and the remote machine.</i>
+  </p>
+  <p>
+    <ol>
+      <li>visit <a href="https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/" target="_blank">
+          our gitlab server</a> and register yourself.<br />
+        <a href="img/gitlab-register.png"><img width=400 src="img/gitlab-register.png" /></a>
+        <br />
+        Please make your user ID on the gitlab server (gitlab ID) the
+        same as your login ID on the cluster if it is possible (never mind
+        if you didn't do so).
+      </li>
+      <li>
+        Please tell me your
+        (student ID, IST cluster ID, gitlab ID) triple by visiting
+        <a href="https://docs.google.com/spreadsheets/d/1kc8TORdBvBto_DbkVFBfUd9h0r-5KRSreptkDW7U53s/edit?usp=sharing" target="_blank"> this spreadsheet. </a>
+      </li>
+
+      <li>after you registered, sign in 
+        <a href="https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/" target="_blank">
+          the gitlab server
+        </a>
+        and visit
+        <a href="https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/tau/parallel-distributed-handson" target="_blank">
+          the hands-on project page. </a>
+        <br />
+        <a href="img/gitlab-hands-on.png"><img width=400 src="img/gitlab-hands-on.png" /></a>
+      </li>
+      <li>Fork the project by pressing the "Fork" button,
+        to make your own copy of the project.
+      </li>
+      <li>After you successfully forked it, visit the repository you just created.
+        Find it by clicking on "Project" -&gt; "Your project".
+        The project page should be like "YOUR NAME/parallel-distributed-handson".
+        Make sure it is NOT "Kenjiro Taura/parallel-distributed-handson".
+      </li>
+      <li>This repository is your working space.
+        You are going to commit your work into this repository.
+        If you clone this directory into the IST cluster (which you must in any case)
+        and your laptop, you can easily transfer changes between them.
+        You can work in your laptop a while, do a simple test and perform
+        a measurement and/or a larger production run on the IST cluster.
+      </li>
+    </ol>
+  </p>
+</div>
+
+<a name=clone> </a>
+<h2>Clone your repository</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <p>
+    <ol>
+      <li>Clone the repository you just created.  At the minimum, you need to clone it
+        in the IST cluster, to run your experiments.  Besides, you may want to clone it
+        in your laptop or whichever environment you want to develop your code in.  Either case,
+        copy the URL shown in your project page and do
+<pre>
+$ <u>git clone https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/YOUR_GITLAB_ID/parallel-distributed-handson.git</u>
+</pre>
+You can copy the whole URL from the gitlab page.
+Be sure that the YOUR_GITLAB_ID part above is your gitlab ID.
+      </li>
+      <li><font color=orange>Alternatively</font> you can 
+<pre>
+$ <u>git clone git@doss-gitlab.eidos.ic.i.u-tokyo.ac.jp:YOUR_GITLAB_ID/parallel-distributed-handson.git</u>
+</pre>
+The latter method is more convenient down the road,
+but for it to work, you need to
+first <a href=#gitlab-ssh>register your SSH key to our gitlab server.</a>
+I'll defer how to do it later and go ahead for now
+      </li>
+    </ol>
+  </p>
+</div>
+
+<a name=roadmap> </a>
+<h2>The roadmap</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <p>
+    You see the detailed instructions of hands-on exercise below
+    from the basics of git and gdb to how to exactly send your work to me.
+    You can follow them basically on a paragraph by paragraph basis,
+    but if you think you already know the basics and want to jump into
+    the specifics of the work you are supposed to do,
+    search for "assignment".
+  </p>
+</div>
+
+<a name=play-with-it> </a>
+<h2>Play with it</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+</div>
+<h3>Make it</h3>
+<div>
+  <p>If you clone the directory, you will find <tt>03spmv</tt> directory,
+    the main working directory of the assignment. Build it by typing <tt>make</tt>
+<pre>
+$ <u>make</u>
+g++ -o spmv.gcc spmv.cc  -Wall -Wextra -O3 -fopenmp  
+/usr/local/cuda/bin/nvcc -o spmv.nvcc -x cu spmv.cc  --gpu-code sm_60 --gpu-architecture compute_60 -O3 -Xptxas -O3,-v  
+</pre>
+If successful, you will get two executables <tt>spmv.gcc</tt> (compiled by g++)
+and <tt>spmv.nvcc</tt> (compiled by nvcc).  If you work in your environment (not IST cluster)
+and do not have nvcc (NVIDIA compiler), remove <tt>spmv.nvcc</tt> from the target so that
+it does not try to make spmv.nvcc. For that, open <tt>Makefile</tt> and comment out the following
+line
+<pre>
+ ... (in the Makefile) ...
+exe += $(app).nvcc
+</pre>
+by putting <tt>#</tt> mark in front of the line.
+<pre>
+ ... (in the Makefile) ...
+# exe += $(app).nvcc
+</pre>
+  </p>
+</div>
+
+<h3>Run it</h3>
+<div>
+  <ul>
+    <li>On the IST cluster do
+<pre>
+$ <u>srun -p PARTITION -t 0:01:00 ./spmv.gcc</u>
+A : 20000 x 10000, 2000000 requested non-zeros
+repeat : 5 times
+format : coo
+matrix : random
+algo : serial
+spmv.cc:751:mk_coo_random starts ...
+spmv.cc:767:mk_coo_random ends. took 0.096 sec
+spmv.cc:1003:sparse_coo_to_coo starts ...
+spmv.cc:1068:sparse_coo_to_coo ends. took 0.014 sec
+spmv.cc:1362:coo_transpose starts ...
+spmv.cc:1380:coo_transpose ends. took 0.018 sec
+spmv.cc:2082:main A is 20000 x 10000, has 2000000 non-zeros and takes 32000000 bytes
+spmv.cc:2085:main tA is 10000 x 20000, has 2000000 non-zeros and takes 32000000 bytes
+spmv.cc:1856:repeat_spmv: warm up + error check starts
+spmv.cc:1870:repeat_spmv: warm up + error check ends. took 0.014 sec
+spmv.cc:1873:repeat_spmv: main loop starts
+spmv.cc:1886:repeat_spmv: main loop ends
+40150000 flops in 0.054420 sec (0.737780 GFLOPS)
+lambda = 5.106883170e+03
+</pre>
+where PARTITION is any partition of the IST cluster (knm, big, p or v) but since
+this is not using GPU, I recommend big (Xeon multicore) or knm (Xeon Phi many core).
+For other options of srun see <tt>00slurm</tt> directory.
+    </li>
+    <li>On your own machine, simply do
+<pre>
+$ <u>./spmv.gcc</u>
+</pre>
+You are allowed to do the same thing if you carefully choose parameters so that it finishes
+quickly with a small number of cores.  Be sure to use srun when you use many cores or the
+program takes a long time.
+    </li>
+  </ul>
+</div>
+
+<h3>Study the output</h3>
+<div>
+  <p>
+    Let's study the output a little bit.
+    (The output is subject to change. Don't worry
+    too much about the difference in format and so on).
+<pre>
+$ <u>srun -p PARTITION -t 0:01:00 ./spmv.gcc</u>
+A : <font color=blue>20000</font> x <font color=blue>10000</font>, <font color=blue>2000000</font> requested non-zeros         # (1)
+repeat : <font color=blue>5</font> times                                       # (2)
+format : <font color=blue>coo</font>                                           # (3)
+matrix : <font color=blue>random</font>                                        # (4)
+algo : <font color=blue>serial</font>                                          # (5)
+spmv.cc:751:mk_coo_random starts ...
+spmv.cc:767:mk_coo_random ends. took 0.096 sec
+spmv.cc:1003:sparse_coo_to_coo starts ...
+spmv.cc:1068:sparse_coo_to_coo ends. took 0.014 sec
+spmv.cc:1362:coo_transpose starts ...
+spmv.cc:1380:coo_transpose ends. took 0.018 sec
+spmv.cc:2082:main A is 20000 x 10000, has <font color=blue>2000000</font> non-zeros and takes 32000000 bytes  # (6)
+spmv.cc:2085:main tA is 10000 x 20000, has 2000000 non-zeros and takes 32000000 bytes
+spmv.cc:1856:repeat_spmv: warm up + error check starts
+spmv.cc:1870:repeat_spmv: warm up + error check ends. took 0.014 sec
+spmv.cc:1873:repeat_spmv: main loop starts
+spmv.cc:1886:repeat_spmv: main loop ends
+<font color=blue>40150000</font> flops in <font color=blue>0.054420</font> sec (<font color=blue>0.737780</font> GFLOPS)       # (7)
+lambda = <font color=blue>5.106883170e+03</font>                               # (8)
+</pre>
+<ul>
+  <li> Line (1)
+<pre>
+A : <font color=blue>20000</font> x <font color=blue>10000</font>, <font color=blue>2000000</font> requested non-zeros
+</pre>
+says the matrix is 20000 <font color=blue>(M)</font> x 10000 <font color=blue>(N)</font>
+matrix
+and it will have approximately 2000000 <font color=blue>(nnz)</font> non-zeros
+(depending on the matrix generation
+method, it may not be able to have the exact number of requested non-zeros).
+  </li>
+  <li> Line (2)
+<pre>
+repeat : <font color=blue>5</font> times
+</pre>
+says it repeats 5 times.  To be precise, the pseudo code of what it does the following.
+<pre>
+repeat 5 times {
+  y = A x;  
+  x = tA y;
+  x = x / |x|
+}
+</pre>
+tA is the transpose of A.  Note that each one takes space.  If you have nnz elements in A,
+A and tA together approximately take (2 * nnz * sizeof(real)) bytes.
+  <li> Line (3)
+<pre>
+format : <font color=blue>coo</font>
+</pre>
+says the matrix A and tA are in coo (Coordinate List) format.  You can specify
+it with <tt>--format</tt> or <tt>-F</tt> option.
+  </li>
+  <li> Line (4)
+<pre>
+matrix : <font color=blue>random</font>
+</pre>
+says the matrix is a random matrix (a uniformly random matrix,
+whose non-zeros are distributed uniformly over the matrix, to be precise).
+You can specify it with <tt>--matrix-type</tt> or <tt>-t</tt> option.
+  </li>
+  <li> Line (5)
+<pre>
+algo : <font color=blue>serial</font>
+</pre>
+says the algorithm is a serial algorithm.
+Its function name is
+<tt>spmv_coo_serial().</tt>  The code follows the same convention for
+other cases.  For example, the function for csr format with cuda is
+<tt>spmv_csr_cuda().</tt>  The code given to you has already them defined
+but they immediately raise an error if called.  Completing
+these functions is your main job of the hands-on.  
+  </li>
+  <li> 
+Starting from the next line, you see the matrix is generated.
+  </li>
+  <li> Line (6)
+    You see the matrix is generated and it ends up with having
+    2000000 non-zeros, just as requested.
+  </li>
+  <li> Line (7)
+<pre>
+<font color=blue>40150000</font> flops in <font color=blue>0.054420</font> sec (<font color=blue>0.737780</font> GFLOPS)
+</pre>
+reports how much work is done and how long it took, along with
+the performance in GFLOPS (10^9 floating point operations per second).
+
+Given M, N, nnz and repeat, the number of flops is
+<pre>
+repeat 5 times {
+  y = A x;       # 2 nnz
+  x = tA y;      # 2 nnz
+  x = x / |x|    # 3 N
+}
+</pre>
+<blockquote>
+flops = (4 * nnz + 3 * N) * repeat
+</blockquote>
+In this example, it is
+<blockquote>
+flops = (4 * 2000000 + 3 * 10000) * 5 = 40150000
+</blockquote>
+  </li>
+  <li> Line (8)
+<pre>
+lambda = <font color=blue>5.106883170e+03</font>
+</pre>
+shows the answer from the algorithm.
+It is the last |x| in the algorithm above, which
+is the largest eigenvalue of (tA A), or
+the largest singular value of A.
+  </li>
+</ul>
+    Just as a heads up, the performance you
+    just witnessed (8.075382682e-01 GFLOPS in this particular run)
+    is less than 1/500 of the machine's peak FLOPS I happened to run it on.
+    How far you can go from this, both with CPU and GPU,
+    is a main topic I hope you are excited to be engaged in.
+  </p>
+</div>
+
+
+<h3>Useful options</h3>
+<div>
+  <p>
+    Let's try options. <tt>-h</tt> will show you the help
+<pre>
+$ <u>./spmv.gcc -h</u>
+./spmv.gcc -h
+usage:
+
+  ./spmv.gcc [options ...]
+
+options:
+  --help             show this help
+  --M N              set the number of rows to N [100000]
+  --N N              set the number of columns to N [0]
+  -z,--nnz N         set the number of non-zero elements to N [0]
+  -r,--repeat N      repeat N times [5]
+  -f,--format F      set sparse matrix format to F (coo,coo_sorted,csr) [coo]
+  -t,--matrix-type M set matrix type to T (random,rmat,one,file) [random]
+  -a,--algo A        set algorithm to A (serial,parallel,cuda,task,udr) [serial]
+  --coo-file F       read matrix from F [mat.txt]
+  --rmat a,b,c,d     set rmat probability [5,0,1,2]
+  -s,--seed S        set random seed to S (use it with -t random or -t rmat) [4567890123]
+  --dump F           dump matrix to a gnuplot file []
+  --dump-points N    dump up to N points to a gnuplot file (use it with --dump) [20000]
+  --dump-seed S      set random number seed to S to choose N points (use it with --dump-points) [91807290723]
+</pre>
+You can smell the framework in which this code is written.
+You can also get various useful options to ease your work later.
+
+<ul>
+  <li><tt><font color=blue>--M</font>, <font color=blue>--N</font></tt> and <tt><font color=blue>--z</font></tt> : change the size of the matrix.
+    You should use small numbers when you find your code does not work at all (e.g.,
+    segmentation fault) and try to find the minimum case in which it does not work.
+    You should large numbers when you work with a large number of cores.</li>
+  <li><tt><font color=blue>-r</font></tt> :  Make sure you repeat the same computation a sufficient number
+    of times to conduct a performance measurement.  It is often the case
+    the computer behaves somewhat differently in the first iteration
+    (due to paging, caches, etc.).  To be confident about what you are actually
+    measuring, it is almost always a good idea to repeat it with a different number
+    of times and the performance you get is consistent (remember: in some cases
+    it is important to measure the performance of the first iteration.  I am not
+    telling you to exclude inconvenient numbers from your experiments.  I am just
+    saying make sure you are not confused by measuring what you do not intend to measure)
+  </li>
+  <li><tt><font color=blue>-f</font>, <font color=blue>-t</font> and <font color=blue>-a</font></tt> :
+    set the format of the matrix, type of the matrix
+    (how the matrix is generated) and the algorithm used (serial, parallel, cuda, etc.).
+    Available options are shown in the help.  However, some options are not
+    implemented and left for your exercise.
+    Your main job in this hands-on is to implement all of them (except a few cases
+    that do not make much sense).  If, for example, you choose <tt>-a parallel</tt> now,
+    you get this.
+<pre>
+$ <u>./spmv.gcc -a parallel</u>
+./spmv.gcc -a parallel
+A : 100000 x 100000, 100000000 requested non-zeros
+repeat : 5 times
+format : coo
+matrix : random
+algo : parallel
+
+   ...
+
+*************************************************************
+work/spmv_coo_parallel.cc:20:spmv_coo_parallel:
+write a code that performs SPMV for COO format in parallel
+using parallel for + atomic directives
+*************************************************************
+</pre>
+You can locate your code by looking at the error message
+(<tt>work/spmv_coo_parallel.cc:20</tt>).  Open it with an editor and work on it.
+  </li>
+  <li>Some matrix types (arguments to <tt><font color=blue>-t</font></tt>) will accept other options.
+    <ul>
+      <li><tt><font color=blue>-t file</font></tt> will read a matrix from a file, whose file name
+        is specified with <tt><font color=blue>--coo-file</font></tt> option.  For example,
+<pre>
+$ <u>./spmv.gcc -t file --coo-file hoge.mat</u>
+</pre>
+will read a matrix from <tt>hoge.mat</tt>
+      </li>
+      <li><tt><font color=blue>-t rmap</font></tt> will generate a random matrix according to the
+        <a href="https://epubs.siam.org/doi/abs/10.1137/1.9781611972740.43" target="_blank">
+          R-MAT</a> model.  It takes four parameters that determines
+        how non-zeros are distributed and the program can take
+        them via <tt><font color=blue>--rmat</font></tt> option.
+<pre>
+$ <u>./spmv.gcc -t rmat --rmat 5,0,1,2</u>
+</pre>
+5, 0, 1 and 2 determine the relative probability with which
+a non-zero element is in the upper-left, upper-right, lower-left and lower-right
+part of the matrix, respectively.  For example, an element appears in
+the upper-left part of the matrix with probability 5/(5+0+1+2) = 0.625.
+This happens recursively in the chosen submatrix.
+      </li>
+      <li><tt><font color=blue>-s</font></tt> option specifies the seed of the random number generator
+        used by matrix type <tt>rmat</tt> and <tt>random</tt>.
+        The matrix is identical when you give the same seed
+        and therefore the result should be identical (subject to
+        rounding errors).
+      </li>
+    </ul>
+  </li>
+    
+  <li><tt><font color=blue>--dump</font></tt> option dumps the matrix A you got for your
+    visualization.  It generates a gnuplot file you can view by gnuplot.
+<pre>
+$ <u>./spmv.gcc --dump a.gnuplot</u>
+     ...
+spmv.cc:1810:dump_sparse_file: dumping to matrix 20000 x 10000 (2000000 nnz) -> a.gnuplot
+spmv.cc:1896:dump_sparse_file: done
+     ...
+</pre>
+<p>
+If you did this on IST cluster, you may want to bring it to your laptop (by scp command).
+</p>
+<pre>
+$ <u>gnuplot a.gnuplot</u>
+</pre>
+<p>
+If you run this on your laptop, a window will pop up and you will see something like this.
+</p>
+<p>
+<a href="img/nnz_mat.png"> <img width=300 src="img/nnz_mat.png" /> </a>
+</p>
+<p>
+This shows the distribution of non-zero elements over the matrix.
+Note that the horizontal axis is the rows and vertical axis the columns,
+not a usual way to display a matrix (please tell me if you know how to easily fix this).
+To avoid overwhelming gnuplot with too much data, up to 20000 elements
+are randomly sampled.  The number can be configured with <tt>--dump-points</tt>
+option.
+</p>
+<p>
+Go back to your terminal and press Enter, which pops up the next graph.
+</p>
+<p>
+<a href="img/nnz_row.png"> <img width=300 src="img/nnz_row.png" /></a>
+</p>
+<p>
+This shows the distribution of non-zero elements over rows,
+giving you an idea about the load balancing if you divide rows into cores.
+</p>
+<p>
+Both graphs are not surprising (and are somewhat boring) as their
+non-zero elements are uniformly distributed.  The non-zeros are evenly
+distributed over rows and over the 2D space.
+</p>
+
+<p>
+<font color=red>New (Nov. 19)</font>
+If you do not have gnuplot on your laptop, you can use the same gnuplot file to generate the above two graphs to two separate image files.  Do the following on the IST cluster.
+</p>
+
+<pre>
+$ <u>gnuplot -e 'term="png"' -e 'nnz_mat="nnz.png"' -e 'nnz_row="row.png"' a.gnuplot</u>
+</pre>
+
+<p>
+Then you will get two files nnz.png and row.png, which you can bring to your laptop and then view by whichever image viewers you use.  You can change the file format by setting the righthand side of <tt>term=</tt> to anything gnuplot recognizes (e.g., svg).  Change filenames accordingly (e.g., nnz.svg and row.svg).
+</p>
+
+<p>
+More interesting is the distribution of non-zeros for rmat.
+If the sole purpose of running the program is to see the distribution
+of a matrix, it is wise to give <tt>-r 0</tt> so that SpMV is not repeated at all
+(warm up + error checks are still performed).
+</p>
+
+<pre>
+$ ./spmv.gcc -r 0 -t rmat --dump a.gnuplot
+   ...
+spmv.cc:1810:dump_sparse_file: dumping to matrix 20000 x 10000 (2000000 nnz) -> a.gnuplot
+spmv.cc:1896:dump_sparse_file: done
+   ...
+</pre>
+<pre>
+$ gnuplot a.gnuplot
+</pre>
+<p>
+will show you this.
+</p>
+<p>
+<a href="img/nnz_mat_rmat.png"> <img width=300 src="img/nnz_mat_rmat.png" /></a>
+</p>
+<p>
+The distribution of non-zeros over rows looks like this.
+</p>
+<p>
+<a href="img/nnz_row_rmat.png"> <img width=300 src="img/nnz_row_rmat.png" /></a>
+</p>
+  </li>
+</ul>
+  </p>    
+</div>
+
+<a name=structure> </a>
+<h2>How the code is structured</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+</div>  
+<h3>Browsing the documentation</h3>
+<div>
+  <p>
+    You can browse the <a href="doc/html/index.html" target="_blank">
+      documentation</a> of functions
+    and data structures generated from the comments in the source code.
+    Go to "Files" -&gt; "File List" to get the structure of the source.
+    Here are some summaries especially relevant for doing hands-on.
+  </p>
+</div>
+
+<h3>A tour of the source code</h3>
+<div>
+  <ul>
+    <li><tt><font color=blue>main()</font></tt> function is in
+      <tt><font color=blue>spmv.cc</font></tt></li>
+    <li><tt><font color=blue>main</font></tt> function,
+      after processing command line arguments, calls
+      <tt><font color=blue>repeat_spmv()</font></tt>, which
+      does everything.</li>
+    <li><tt><font color=blue>repeat_spmv()</font></tt>
+      repeatedly calls <tt><font color=blue>spmv()</font></tt>.</li>
+    <li><tt><font color=blue>spmv()</font></tt> has a switch statement based on the matrix format.
+      Based on the matrix format, it calls into function
+      that implements spmv for a particular format
+      (<tt><font color=blue>spmv_coo(), spmv_coo_sorted()</font></tt> or
+      <tt><font color=blue>spmv_csr()</font></tt>)</li>
+    <li>Each of them is another function that, based on
+      the algorithm chosen, calls one of functions that implement
+      spmv for a particular combination of the matrix format and the algorithm.
+      All these functions follow the naming convention:
+      <font color=blue><tt>spmv_</tt><i>format</i><tt>_</tt><i>algorithm</i></font>.
+      For example, <tt><font color=blue>spmv_coo_serial</font></tt>
+      is the function that implements spmv
+      for coo format in serial.
+    </li>
+    <li>Formats currently recognized are
+      <ul>
+        <li><font color=blue>coo</font>,</li>
+        <li><font color=blue>coo_sorted</font> and</li>
+        <li><font color=blue>csr</font></li>
+      </ul>
+    </li>
+    <li>Algorithms currently recognized are
+      <ul>
+        <li><font color=blue>serial</font> (serial algorithm),</li>
+        <li><font color=blue>parallel</font> (parallel algorithm, probably with OpenMP parallel for
+          + atomic update as necessary),</li>
+        <li><font color=blue>cuda</font> (cuda),</li>
+        <li><font color=blue>task</font>
+          (parallel algorithm, probably with OpenMP tasks or Intel TBB) and</li>
+        <li><font color=blue>udr</font>
+          (parallel algorithm, probably with OpenMP parallel for + user-defined reductions
+          or Intel TBB parallel_reduce).</li>
+      </ul>
+    </li>
+    <li>Each of these functions, except for serial ones already provided in <tt>spmv.cc</tt>,
+      is in a separate file in <tt><font color=blue>include</font></tt>
+      directory, with the file name same with the function name.
+      For example, a parallel version for coo-formatted matrices is
+      named <tt><font color=blue>spmv_coo_parallel</font></tt>
+      and it is in <tt><font color=blue>include/spmv_coo_parallel.cc</font></tt>
+      <font color=red><i>Most of them are unimplemented yet and raise an error when called.</i></font>
+      <i>The main job of your hands-on is to fill these functions with working implementations.</i>
+    </li>
+    <li>Besides <tt><font color=blue>spmv</font></tt>,
+      there are two auxiliary functions called from <tt>repeat_spmv.</tt>
+      <ul>
+        <li><tt><font color=blue>scalar_vec</font>,</tt> which multiplies each element of a vector by a scalar</li>
+        <li><tt><font color=blue>vec_norm2</font>,</tt>
+          which computes the square norm of a vector</li>
+      </ul>
+      They also dispatch to one of functions for various algorithms.  For example,
+      <tt><font color=blue>scalar_vec_parallel</font></tt>
+      and <tt><font color=blue>scalar_vec_cuda</font></tt> are functions
+      implementing scalar-vector multiply with parallel for and cuda
+      and are in <tt><font color=blue>include/scalar_vec_parallel.cc</font></tt> and
+      <tt><font color=blue>include/scalar_vec_cuda.cc</font></tt>, respectively.
+    </li>
+    <li>
+      In many cases, the same implementation can be shared
+      across multiple algorithms.  For example,
+      it makes sense to have an identical implementation for 
+      <tt><font color=blue>spmv_coo_cuda</font></tt> and
+      <tt><font color=blue>spmv_coo_sorted_cuda</font></tt>.
+      It also makes sense to share the same implementation
+      of <tt><font color=blue>scalar_vec</font></tt>
+      and <tt><font color=blue>vec_norm2</font></tt> for many
+      cases no matter which algorithm is used for spmv.
+      In these cases, the default source code simply calls into
+      another (e.g., <tt><font color=blue>spmv_coo_sorted_cuda</font></tt>
+      simply calls <tt><font color=blue>spmv_coo_cuda</font></tt>).  You do not have
+      to change these functions unless you like to.
+    </li>
+  </ul>
+</div>
+
+<h3>Use a debugger to dig into it</h3>
+<div>
+  <p>The source code is hopefully simple enough to get a good idea about it working
+    with the above explanation + browsing.  To get a fuller understanding and
+    to diagnose a problem after you modified it, however, 
+    it is a good idea to follow what's going on by running it within a debugger.
+    If you are not accustomed to do it, I recommend you to do the following
+    as a practice.
+  </p>
+  <ol>
+    <li>Compile the source with <tt>-O0 -g</tt> and without <tt>-O3</tt>.
+      For that, open <tt>Makefile</tt> and uncomment the line including
+      <tt>-O0 -g</tt> and comment out the line including <tt>-O3</tt>, like this.
+<pre>
+cxxflags += -O0 -g
+#cxxflags += -O3
+</pre>
+and run <tt>make</tt> command again.
+<pre>
+$ make
+g++ -o spmv.gcc spmv.cc  -Wall -Wextra -O0 -g -fopenmp  
+</pre>
+Be sure that <tt>-O0 -g</tt> are given to the command line.
+If the make command says
+<pre>
+$ make
+make: Nothing to be done for 'all'.
+</pre>
+do either of the following.
+  <ol>
+    <li>run <tt>make clean</tt> to remove the executable and run <tt>make</tt> again.
+<pre>
+$ <u>make clean</u>
+rm -f *.o  spmv.gcc
+$ <u>make</u>
+g++ -o spmv.gcc spmv.cc  -Wall -Wextra -O0 -g -fopenmp  
+</pre>
+    </li>
+    <li>run <tt>make -B</tt> instead of <tt>make.</tt>  <tt>-B</tt> option to <tt>make</tt>
+      instructs <tt>make</tt> to build everything anyways.
+<pre>      
+$ <u>make -B</u>
+g++ -o spmv.gcc spmv.cc  -Wall -Wextra -O0 -g -fopenmp  
+</pre>      
+    </li>
+  </ol>
+  <ul>
+    <li><tt>-O0</tt> instructs the compiler not to optimize it.</li>
+    Therefore it is important not to give <tt>-O3,</tt> which instructs the compiler to optimize it.
+    <li><tt>-g</tt> instructs the compiler to include debug symbols, so that
+      the debugger can trace it.</li>
+  </ul>
+    </li>
+    <li>Run <tt>gdb</tt> command in the terminal or from within an IDE that supports a debugger.
+      In the case of Emacs, from the buffer having <tt>spmv.cc</tt> do
+<pre>      
+M-x gud-gdb
+</pre>
+and when asked
+<pre>
+Run gud-gdb (like this): gdb --fullname ./spmv.gcc
+</pre>
+specify the executable file (e.g., <tt>./spmv.gcc</tt>) you want to trace.
+    </li>
+    <li>use <tt>n(ext)</tt> command and <tt>s(tep)</tt> command to execute
+      the program one line at a time.  I cannot write all the things
+      I want to tell you about the debugger.  There are plenty of sources
+      about it (google gdb, gdb intro, etc.).
+      Please get familiar with it in this opportunity if you are not.
+    </li>
+  </ol>
+</div>
+
+<a name=ex1></a>
+<h2>Exercise 1</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Parallelize
+    spmv for coo format
+    with OpenMP "parallel for" and run it on multicore/many core CPUs.
+    Read and follow the details below.
+  </blockquote>
+</div>
+
+<a name=which_functions_1></a>
+<h3>Which functions/files to change</h3>
+<div>
+  <p>
+    The goal is to make the following command run successfully.
+<pre>      
+$ <u>OMP_NUM_THREADS=<i>n</i> ./spmv.gcc -f coo -a parallel</u>
+</pre>
+and
+<pre>      
+$ <u>OMP_NUM_THREADS=<i>n</i> ./spmv.gcc -f coo_sorted -a parallel</u>
+</pre>
+for <i>n</i> &gt; 1.
+If you run the above command without any work, you will get
+the following error.
+<pre>      
+$ <u>OMP_NUM_THREADS=<i>n</i> ./spmv.gcc -f coo -a parallel</u>
+   ...
+*************************************************************
+include/spmv_coo_parallel.cc:20:spmv_coo_parallel:
+write a code that performs SPMV for COO format in parallel
+using parallel for + atomic directives
+*************************************************************
+</pre>
+Look into the file <tt>include/spmv_coo_parallel.cc</tt>
+and implement <tt>spmv_coo_parallel</tt> function in it.
+There is another function you need to implement
+(<tt>include/vec_norm2_parallel.cc:vec_norm2_parallel</tt>)
+and you will similarly encounter an error if you don't.
+  </p>
+  <p>If you make it work for the coo format,
+    it will automatically work for coo_sorted format as well.
+    Unless you come up with an algorithm that takes advantage
+    of the fact that elements are sorted, you do not
+    have to write it separately.
+  </p>
+</div>
+
+<a name=check_your_code_1></a>
+<h3>Check your code is correct</h3>
+<div>
+  <p>
+    After you have done, check the result with the following.
+    <ul>
+      <li>Check the <tt>lambda</tt> printed in the end is almost identical
+        to the serial algorithm (<tt>-t serial</tt>).
+        There may be a slight difference due to the slight difference
+        in how values are accumulated into <tt>y[i]</tt>
+      </li>
+      <li>Change M and N in various ways (<tt>--M</tt> and <tt>--N</tt>)
+        and make sure the lambda is always good.
+        Especially, try extremely small <tt>M</tt> and large <tt>N</tt>
+        and vice versa.  For example, 
+<pre>
+$ <u>OMP_NUM_THREADS=8 ./spmv.gcc -f coo -a parallel --M 10 --N 50000000</u>
+   ...
+lambda = 1.790669680e+05
+$ <u>OMP_NUM_THREADS=8 ./spmv.gcc -f coo -a serial --M 10 --N 50000000</u>
+   ...
+lambda = 1.790669680e+05
+</pre>
+Try even <tt>--M 1</tt> (or <tt>--N 1</tt>) with large N (or M).
+      </li>
+      <li>Check the result with matrix type 'one' with the following condition.
+        <ul>
+          <li>Give <tt>--nnz</tt> a square number.  Let's say it is <i>L * L</i></li>
+          <li>Make both M (<tt>--M</tt>) and N (<tt>--N</tt>) not smaller than <i>L</i></li>
+        </ul>
+        Then the <tt>lambda</tt> must be <i>L * L</i> practically without any error.
+        For example,
+<pre>
+$ <u>./spmv.gcc -f coo -a parallel --M 5000 --N 10000 --nnz $((1234 * 1234)) -t one</u>
+    ...
+lambda = 1.522756000e+06
+</pre>
+In fact,
+<pre>
+$ echo $((1234 * 1234))
+1522756
+</pre>
+which is exactly the lambda answered by the program (1.522756000e+06).
+You should suspect your program if it is even slightly different.
+Another example:
+<pre>
+$ <u>./spmv.gcc -f coo -a parallel --M 10000 --N 10000 --nnz $((987 * 987)) -t one</u>
+  ...
+lambda = 9.741690000e+05  
+$ echo $((987 * 987))
+974169
+</pre>
+I do not explain what matrix is generated by this command and why
+the result is just as described.  Please look at the implementation
+and the comments of <tt>mk_coo_one</tt> function in <tt>spmv.cc</tt>
+if you are interested.
+      </li>
+    </ul>
+  </p>
+</div>
+
+<a name=check_how_fast_1></a>
+<h3>Check how fast your code is</h3>
+<div>
+  <p>Command shown above all run <tt>./spmv.gcc</tt> on the machine
+    you typed the command.  It is OK if the machine is yours
+    or the command finishes very quickly.
+    Before measuring the performance,
+    make sure you study <tt>01hello/README.md</tt> so that
+    how to submit OpenMP jobs with srun and
+    you know which cores you are actually using.
+  </p>
+  <p>You are also recommended to run jobs through a shell script
+    or a makefile that contains several commands you want to run.
+    You don't have to type similar commands many times.
+  </p>
+  <p>Run the code at least with the following three settings.</p>
+  <ol>
+    <li><tt>-a serial</tt> That is, with the serial algorithm.</li>
+    <li><tt>-a parallel</tt> + <tt>OMP_NUM_THREADS=1</tt>
+      That is, with the parallel algorithm but only with a single core.</li>
+    <li><tt>-a parallel</tt> + <tt>OMP_NUM_THREADS=<i>n</i></tt>
+      for <i>n</i> = 2, 3, 4, ... up to somewhere close to the number of cores
+      or a number beyond which you don't observe any speedup.</li>
+  </ol>
+
+  <p>Choose problem size parameters so that you have a reasonable hope to 
+    observe a good speedup (In reality, of course, the problem sizes
+    are determined by the algorithm or the problem at hand.  The main purpose
+    here is to discover anything you didn't get right
+    by choosing the parameters with which the algorithm should scale well).
+    <ul>
+      <li>Recall that the work done by a single spmv
+        is essentially nnz FMA (multiply + add) operations.
+        Since a single multiply + add is a very small piece of work,
+        in order to have a hope to get a good speedup, 
+        you need to make nnz sufficiently large.
+        Try to make a single spmv take 0.1 seconds on a single core.
+      </li>
+      <li>
+        Try to make the matrix "sparse enough",
+        to reduce the likelihood of conflicting accesses.
+      </li>
+      <li>
+        See the difference between coo and coo_sorted.
+        The code is identically (coo_sorted version simply
+        calls coo version), yet you see a large
+        performance difference, both for serial and parallel.
+      </li>
+      <li>
+        coo_sorted takes a significant amount of time
+        to generate and transpose a matrix.  This is because
+        we need to sort all non-zeros in the dictionary order.
+      </li>
+    </ul>
+  </p>
+</div>
+
+<a name=ex2> </a>
+<h2>Exercise 2</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Parallelize
+    spmv for coo format
+    with CUDA.
+    Follow the instruction below.
+  </blockquote>
+</div>
+
+<a name=which_functions_2></a>
+<h3>Which functions/files to change</h3>
+<div>
+  <p>
+    The goal is to make the following command run successfully.
+<pre>
+$ <u>srun -p p ./spmv.nvcc -f coo -a cuda</u>
+</pre>
+and
+<pre>
+$ <u>srun -p p ./spmv.nvcc -f coo_sorted -a cuda</u>
+</pre>
+Similarly to Exercise 1,
+if you run the above command without any work, you will get
+the following error.
+<pre>
+$ <u>srun -p p ./spmv.nvcc -f coo -a parallel</u>
+   ...
+*************************************************************
+include/spmv_coo_cuda.cc:35:spmv_coo_cuda:
+write a code that performs SPMV for COO format in parallel
+using CUDA.
+*************************************************************
+</pre>
+The remaining instructions are the same with
+<a href="#which_functions_1">Exercise 1</a>.
+Implement functions you need to implement.
+</div>
+
+<a name=check_your_code_2></a>
+<h3>Check your code is correct</h3>
+<div>
+  <p>
+    Follow <a href="#check_your_code_1">the same instruction with Exercise 1</a>.
+  </p>
+</div>
+
+<a name=check_how_fast_2></a>
+<h3>Check how fast your code is</h3>
+<div>
+  <p>
+    On GPUs, it is difficult to run the same code
+    with a specific number of "cores" (streaming multiprocessors),
+    as the hardware automatically dispatches
+    thread blocks to available streaming multiprocessors.
+    The only way to limit the number of
+    streaming multiprocessors used is to limit the number of
+    thread blocks created, but doing so would require you to
+    change the number of threads per block, which is
+    in some cases impossible, or change the work done by each thread,
+    which is tedious if a thread is originally written to work
+    on a single non-zero element.
+  </p>
+  <p>
+    It is thus not necessary to change the number of
+    processors for GPUs. 
+  </p>
+</div>
+
+<a name=ex3></a>
+<h2>Exercise 3</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Parallelize
+    spmv for csr format
+    with OpenMP "parallel for" and run it on multicore/many core CPUs.
+    Read and follow the details below.
+  </blockquote>
+</div>
+
+<a name=which_functions_3></a>
+<h3>Which functions/files to change</h3>
+<div>
+  <p>
+    The goal is to make the following command run successfully.
+<pre>
+$ <u>OMP_NUM_THREADS=<i>n</i> ./spmv.gcc -f csr -a parallel</u>
+</pre>
+for <i>n</i> &gt; 1.
+The remaining instructions are the same with
+<a href="#which_functions_1">Exercise 1</a>.
+This time you do not need to implement <tt>vec_norm2</tt>
+function, which you should have done in Exercise 1.
+  </p>
+  <p>Also check your result and measure the performance.
+  </p>
+</div>
+
+
+<a name=ex4></a>
+<h2>Exercise 4</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Parallelize
+    spmv for csr format
+    with CUDA.
+    Read and follow the details below.
+  </blockquote>
+</div>
+
+<a name=which_functions_4></a>
+<h3>Which functions/files to change</h3>
+<div>
+  <p>
+    The goal is to make the following command run successfully.
+<pre>
+$ <u>srun -p p ./spmv.nvcc -f csr -a cuda</u>
+</pre>
+<p>
+The remaining instructions are the same with
+<a href="#which_functions_1">Exercise 1</a>.
+Implement functions you need to implement.
+</p>
+  <p>Also check your result and measure the performance.</p>
+</div>
+
+
+<a name=ex5></a>
+<h2>Optional Exercise 5 </h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Parallelize
+    spmv for csr format
+    with tasks.
+    Read and follow the details below.
+  </blockquote>
+</div>
+
+<a name=which_functions_5></a>
+<h3>Which functions/files to change</h3>
+<div>
+  <p>
+    The goal is to make the following command run successfully.
+<pre>
+$ <u>OMP_NUM_THREADS=<i>n</i> ./spmv.gcc -f csr -a task</u>
+</pre>
+for <i>n</i> &gt; 1.
+<p>
+The remaining instructions are the same with
+<a href="#which_functions_1">Exercise 1</a>.
+Implement functions you need to implement.
+</p>
+  <p>Also check your result and measure the performance.</p>
+</div>
+
+
+<a name=ex6></a>
+<h2>Optional Exercise 6</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Parallelize
+    spmv for coo_sorted format
+    with parallel for + user-defined reductions.
+    Read and follow the details below.
+  </blockquote>
+</div>
+
+<a name=which_functions_6></a>
+<h3>Which functions/files to change</h3>
+<div>
+  <p>
+    The goal is to make the following command run successfully.
+<pre>
+$ <u>srun -p <i>cpu_partition</i> ./spmv.gcc -f coo_sorted -a udr</u>
+</pre>
+<p>
+The remaining instructions are the same with
+<a href="#which_functions_1">Exercise 1</a>.
+Implement functions you need to implement.
+</p>
+  <p>Also check your result and measure the performance.</p>
+</div>
+
+  
+<a name=ex7></a>
+<h2>Optional Exercise 7 <font color=red>(new Nov. 19)</font></h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Based on what you learned (or will learn) about the memory bandwidth,
+    what is the maximum achievable FLOPS using
+    COO and CSR format, respectively, when matrix elements are
+    too large to fit any level of the cache (each element must be brought
+    from the main memory).  You can ignore accesses to x and y for the sake of
+    this analysis.  Answer for the following cases, for
+    our Skylake-X Gold 6130 (CPU in "big" partition) processor
+    and/or Knights Mill (CPU in "knm" partition) processor.
+    <ul>
+      <li>the achievable GFLOPS with a single core</li>
+      <li>the achievable GFLOPS with all cores in a single socket</li>
+      <li>the achievable GFLOPS with all cores of a single node</li>
+    </ul>
+    Compare these numbers with what you actually achieved in the experiments.
+  </blockquote>
+</div>
+
+
+<a name=ex8></a>
+<h2>Challenging Optional Exercise 8 <font color=red>(new Nov. 19)</font></h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <blockquote>
+    Think how to approach the achievable GFLOPS
+    you calculated above (for large matrices that do not fit the cache).
+    Execute the idea if you have energy left.
+    You can invent
+    a new matrix format if you think it is useful and you don't
+    have to include the format conversion time in the measurement.
+    The only constraint is that the format can represent any matrix.
+    For performance measurement, you can choose parameters
+    that "fit" for the format (the format/algorithm do not have to be
+    fast for all cases), as long as these parameters are
+    "reasonable" in a common sense
+    (the matrix is much larger than any level of cache;
+    the matrix is reasonably sparse so that it is more efficient
+    than using the dense matrix format; etc.).
+    Try to get both
+    <ul>
+      <li> single core performance and </li> 
+      <li> multicore performance </li> 
+    </ul>
+    Just writing about your thought is OK.
+    Even better if you go ahead and implement it.
+  </blockquote>
+</div>
+
+<a name=submit></a>
+<h2>Submit your work <font color=red>(new Nov. 19)</font></h3>
+<div>
+  <p>
+    <ul>
+      <li>write your code and follow the above instructions.</li>
+      <li>write the text by modifying
+        the text file
+        <a href="https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/tau/parallel-distributed-handson/blob/master/reports/03spmv.md" target="_blank">
+          <tt>reports/03spmv.md</tt>
+        </a>
+        in your repository (you should find it IN YOUR forked repository,
+        by <a href="#fetch">updating it</a>).
+        what needs to be written is described
+        in that file. read it and follow the instructions.</li>
+      <li>after your code and the text are ready, commit and push them
+<pre>
+$ git commit "done spmv hands-on report" -a
+$ git push
+</pre>
+      </li>
+      <li>after you push them, check them in the
+        <a href="https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp" target="_blank">
+          gitlab server</a> and report it in
+        <a href="https://itc-lms.ecc.u-tokyo.ac.jp/" target="_blank">ITC-LMS.</a>
+        the report you send to ITC-LMS is purely for status-tracking purposes.
+        all the contents should be pushed in the gitlab repository.
+        you only report the gitlab URL to your work 
+        through ITC-LMS.
+        visit <a href="https://itc-lms.ecc.u-tokyo.ac.jp/" target="_blank">
+          ITC-LMS</a>,
+        find the lecture "parallel and distributed
+        programming" and report the URL, following the instruction there.
+      </li>
+    </ul>  
+  </p>
+</div>
+
+
+<a name=gitlab-ssh> </a>
+<h2>Register your SSH key to the gitlab server</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+
+  <p>When you clone your repository or add my repository
+    to retrieve the updates I made, there are two kinds of URLs
+    you can specify: SSH and HTTPS.  You already witnessed it
+    on the gitlab server.
+  </p>
+  <p>
+
+  </p>
+  <p>If you choose SSH, the URL looks like
+<pre>
+git@doss-gitlab.eidos.ic.i.u-tokyo.ac.jp:USER_NAME/parallel-distributed-handson.git
+</pre>
+and if you choose HTTPS, it looks like:
+<pre>
+https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/USER_NAME/parallel-distributed-handson.git
+</pre>
+
+In general, SSH is a preferred method because you don't have to type
+gitlab password every time you push your changes.  Here is how you set
+up it.
+<ul>
+  <li>go to the gitlab <a href="https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/"
+                           target="_blank">top page</a> and sign in </li>
+  <li>click the circle on the upper right corner of the page
+    to open the menu and choose "Settings" <br />
+    <a href="img/gitlab-top.png"><img src="img/gitlab-top.png" width=400/></a>
+  </li>
+  <li>in the "User Settings" pane that appears on the right
+    of the page, choose "SSH Keys" <br  />
+    <a href="img/gitlab-settings-pane.png">
+      <img src="img/gitlab-settings-pane.png" width=300/>
+    </a>
+  </li>
+  <li>open your SSH public key (most typically <tt>~/.ssh/id_rsa.pub</tt>
+    in Linux or MacOS) with the editor and copy-paste it into the text area
+    <br  />
+    <a href="img/gitlab-ssh-textarea.png">
+      <img src="img/gitlab-ssh-textarea.png" width=300/>
+    </a>
+  </li>
+</ul>
+  </p>
+</div>
+
+<h3>Do you have to create/register another key for IST server?</h3>
+<div>
+  <p>If you follow the above procedure on your laptop,
+    you are now able to clone and push to your repository via SSH URL
+    (git@doss-gitlab...) <font color=red><i>on your laptop.</i></font>
+    Obviously, you want to set things up so that you can
+    do it on the IST server.  There are two ways to do it.
+  </p>
+  <ul>
+    <li>generate a key pair on IST server.  login the IST server and do
+<pre>
+$ ssh-keygen
+</pre>
+You will be asked to enter a passphrase.  Enter one and register the generated
+public key (<tt>~/.ssh/id_rsa.pub</tt>) following the procedure above.
+    </li>
+    <li>alternatively, you can use the key in your laptop to successfully
+      authenticate yourself on the server.  The mechanism is called
+      <font color=blue><i>SSH agent forwarding</i></font>.
+      If you are using Linux of MacOS, chances are
+      it is already running. Just try this from your laptop.
+<pre>
+your_laptop$ <u>ssh -A 157.82.22.26</u>
+login000$ <u>git clone git@doss-gitlab....</u>
+</pre>
+If it succeeds, you are done.  
+When you do <tt>git clone git@doss-gitlab...</tt> the ssh-agent running
+on your computer is authenticating yourself on behalf of the IST cluster.
+If it fails, presumably ssh-agent is not running. 
+    </li>
+    <li>to check if an ssh-agent is running, just try
+<pre>
+your_laptop$ <u>ps auxww | grep ssh-agent</u>
+tau      12427  0.0  0.0  11304  1556 ?        S    11:19   0:00 <font color=blue>/usr/bin/ssh-agent</font> -D -a /run/user/1000/keyring/.ssh
+</pre>
+If it is not running, bring up one by
+<pre>
+your_laptop$ eval $(ssh-agent)
+your_laptop$ <u>ps auxww | grep ssh-agent</u>  # make sure it's running
+tau      12427  0.0  0.0  11304  1556 ?        S    11:19   0:00 <font color=blue>/usr/bin/ssh-agent</font> -D -a /run/user/1000/keyring/.ssh
+</pre>
+Then try <tt>ssh -A</tt> again.
+<pre>
+your_laptop$ <u>ssh -A 157.82.22.26</u>
+login000$ <u>git clone git@doss-gitlab....</u>
+</pre>
+    </li>
+    <li>If you are using putty on Windows, you can use
+      <tt>pagent.exe</tt>. download it 
+      <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
+          target="_blank">here</a> and click the program to get it running.
+      Find the pagent icon in the task tray and right click on it
+      and choose "Add Key" and add your private key (.ppk) file.
+      Then use putty to login to the server.
+      Make sure go to "SSH" -&gt; "Auth" and check "Allow Agent Forwarding".
+      See <a href="https://www.ssh.com/ssh/putty/putty-manuals/0.68/Chapter9.html"  target="_blank">this page</a> for detailed instructions.
+    </li>
+  </ul>
+</div>
+
+<a name=fetch> </a>
+<h2>Getting updates on hands-on material</h2>
+<div>
+  <p><font size=-1><a href="#toc">back to toc</a></font></p>
+  <p>
+    Do this once after you clone the repository
+<pre>
+$ <u>git remote add upstream git@doss-gitlab.eidos.ic.i.u-tokyo.ac.jp:tau/parallel-distributed-handson.git</u>
+</pre>
+or, if you have not set up SSH key, 
+<pre>
+$ <u>git remote add upstream https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/tau/parallel-distributed-handson.git</u>
+</pre>
+  </p>
+
+  <p><font color=red>If you have not setup SSH key but have already done
+<pre>
+$ <u>git remote add upstream git@doss-gitlab.eidos.ic.i.u-tokyo.ac.jp:tau/parallel-distributed-handson.git</u>
+</pre>
+the URL is written in <tt>parallel-distributed-handson/.git/config</tt>.
+Just open it and find a section like
+<pre>
+[remote "upstream"]
+	url = git@doss-gitlab.eidos.ic.i.u-tokyo.ac.jp:tau/parallel-distributed-handson.git
+	fetch = +refs/heads/*:refs/remotes/upstream/*
+</pre>
+    </font>
+Simply replace the url to the <tt>https://doss-gitlab.eidos.ic.i.u-tokyo.ac.jp/tau/parallel-distributed-handson.git</tt>
+  </p>
+
+  <p>In order to reflect changes I made in my repository,
+    do the following.
+<pre>
+$ <u>git fetch upstream</u>
+$ <u>git merge upstream/master</u>
+</pre>
+  </p>
+</div>
+
+
+
+</body>
+</html>
+
